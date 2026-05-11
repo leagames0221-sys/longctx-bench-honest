@@ -103,7 +103,7 @@ jobs:
           test -f .github/dependabot.yml || { echo "DRIFT: dependabot.yml missing"; exit 1; }
           grep -q "package-ecosystem: \"pip\"" .github/dependabot.yml || { echo "DRIFT: dependabot.yml missing pip ecosystem"; exit 1; }
 
-      - name: Verify D: drive cache redirect documented (consumer laptop disk constraint)
+      - name: "Verify D-drive cache redirect documented (consumer laptop disk constraint)"
         run: |
           grep -q "Disk layout" README.md || { echo "DRIFT: README missing Disk layout section"; exit 1; }
           grep -q "HF_HOME" pyproject.toml || grep -q "HF_HOME" README.md || { echo "DRIFT: HF_HOME redirect not documented"; exit 1; }

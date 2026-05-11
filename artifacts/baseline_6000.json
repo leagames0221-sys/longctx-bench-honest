@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "task": "niah_single",
+  "model": "Qwen/Qwen2.5-7B-Instruct-1M",
+  "quantization": "int4-nf4-bnb",
+  "context_tokens_target": 6000,
+  "depth_pct": 50.0,
+  "seed": 42,
+  "needle_value": "2867825",
+  "haystack_source": "PaulGrahamEssays (49 essays, repeated as needed)",
+  "host": {
+    "gpu": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+    "vram_total_gb": 6.0,
+    "cuda_version": "12.4",
+    "torch_version": "2.5.1+cu124"
+  },
+  "context_tokens_actual": 5851,
+  "model_load_sec": 74.64,
+  "vram_after_model_load_gb": 5.178,
+  "status": "OOM",
+  "error": "CUDA out of memory at context_tokens=6000: CUDA out of memory. Tried to allocate 3.57 GiB. GPU 0 has a total capacity of 6.00 GiB of which 0 bytes is free. Of the allocated memory 9.35 GiB is allocated by PyTorch, and 1.60 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+  "peak_vram_gb": 9.429
+}

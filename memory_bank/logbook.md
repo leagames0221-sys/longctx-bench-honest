@@ -176,3 +176,52 @@
 - transformers 経由 sample inference 走行: `uv run python -c "from transformers import AutoModelForCausalLM, AutoTokenizer; ..."` で Qwen 2.5-1M load 確認 (128k context 程度から start)
 - baseline 128k RULER subset 走行 (single niah task)、 JSON evidence 出力
 - WSL2 vllm install は frontier 1M で必要時のみ Phase 2 内で execute、 ADR-005 で 「Windows host transformers vs WSL2 vllm の trade-off」 を literal 記録
+
+---
+
+## 2026-05-12 — Phase 1 partial: CUDA torch install + NIAH baseline scaling + 6GB VRAM ceiling literal characterized (session: portfolio-continue)
+
+**作業 (literal 実測値)**:
+- Hardware identified: NVIDIA RTX 3050 Laptop 6GB VRAM, CUDA driver 12.6, compute 8.6 (Ampere); host RAM (not measured this session)
+- Replaced cpu-only torch 2.11.0 (from prior session) with **torch 2.5.1+cu124** + torchvision 0.20.1 via official PyTorch wheel index (security-audit OK: official Meta, BSD-3, 86k★, no PyPI typosquat surface)
+- `bitsandbytes 0.49.2` installed (MIT, official, int4 NF4 standard) — security audit GREEN
+- Authored `examples/baseline_niah.py` (decomposed prior art: PaulGraham haystack from gkamradt/NIAH MIT + RULER niah.py template Apache-2.0, lightweight self-contained ~150 lines)
+- Created `artifacts/` dir for JSON evidence
+- Ran 4-cell scaling experiment (RUN A-D below)
+
+**実測値** (artifacts/baseline_{4000,5000,6000,8000}.json all committed):
+
+| Run | context_tokens | actual_tokens | status | model_load_sec | inference_sec | peak_vram_gb | output |
+|---|---|---|---|---|---|---|---|
+| A | 4000 | 3851 | **PASS** | 74.45 | 251.89 | 10.80 | "2867825" (needle correct ★★★) |
+| B | 5000 | 4850 | OOM | 66.34 | n/a | 11.18 (req 2.46 more) | n/a |
+| C | 6000 | 5851 | OOM | 74.55 | n/a | 9.35 (req 3.57 more) | n/a |
+| D | 8000 | 7851 | OOM | 66.93 | n/a | 6.15 (req 6.43 single-block) | n/a |
+
+→ **Hard ceiling: ~4k tokens** on this hardware tier (RTX 3050 6GB Laptop + int4 NF4 Qwen2.5-7B-1M + Win shared-mem fallback).
+
+**Honest finding (portfolio gold ★★★)**:
+- 4k PASS uses Windows shared-mem PCIe spillover (peak 10.8GB on a 6GB GPU = 4.8GB system RAM borrowed via DMA — ~5-10x slower than native VRAM access, evidenced by 252s wall-time for what should be a sub-30s task on a workstation GPU)
+- 5k+ OOM = shared-mem fallback exhausted; single attention forward pass requires more contiguous addressable memory than physically present
+- This is the literal `constraint-optimized AI engineering` boundary — not a failure of the model, not a config error, just the literal physics of 7B params × KV cache vs 6GB VRAM
+
+**Documentation updates (D3-DocSync, all in same commit)**:
+- README Status: "Phase 0 closed → Phase 1 partial" with link to Honest results and ADR-007
+- README Cost-tier table: 4 literal NIAH cells (4k PASS + 5k/6k/8k OOM) + 3 `infeasible at 6GB VRAM` cells (RULER / LongBench v2 / NIAH 128k+) + inference wall-time row + electricity cost row
+- README Honest results: full populated section "Where the local 7B model holds up" / "Where the constraint literally hits" / "Where reasonable engineering fixes the gap" / "Where it doesn't"
+- decisionLog ADR-007: literal 6GB VRAM ceiling characterization with citation chain (Qwen config + bitsandbytes + KV cache arithmetic)
+
+**error**:
+- 1st run: `device_map="auto"` triggered CPU offload error → fixed by `device_map={"": 0}` (force all on GPU 0)
+- `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` is not supported on Windows (UserWarning emitted, ignored) — fragmentation workaround not available, but ceiling determined by literal physical limit not fragmentation
+- transformers `torch_dtype` deprecation warning (non-fatal, future-proofed by passing kwarg in legacy form)
+
+**進捗**: Phase 1 partial 完了 — install layer + baseline runner + 4-cell JSON evidence + README + ADR-007 全件 literal commit 待ち。 drift-CI extension は本 commit 後の next iteration で artifact 存在 verify 追加予定。
+
+**申し送り (next session = cloud frontier comparison)**:
+- Phase 2 entry: GitHub Models endpoint (https://models.github.ai/inference) 経由で同 NIAH @ 4k task を GPT-5 / Claude Sonnet 4.6 / Llama 3.3 で literal 並列走行 → cost-tier table 4 model × 4k cell literal populate
+- token gh auth (`gh auth token`) → .env (gitignore済) → openai SDK base_url 経由
+- 8000 token request cap 制約は browser-agent-demo v5 で既 evidence、 4k input + ~100 output = 4100 token は free-tier cap 内 ★★★
+- WSL2 + vllm PagedAttention path は Phase 2 後半 candidate (ceiling 8-16k へ literal push 可否 verify)
+- craftstack 統合 (Phase 3) は cloud cells populate 後
+

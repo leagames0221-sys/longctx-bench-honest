@@ -112,5 +112,35 @@ jobs:
         run: |
           grep -q "pip-audit" pyproject.toml || { echo "DRIFT: pyproject.toml missing pip-audit (supply chain defense)"; exit 1; }
 
+      - name: Verify NIAH baseline runner exists (Phase 1 deliverable)
+        run: |
+          test -f examples/baseline_niah.py || { echo "DRIFT: examples/baseline_niah.py missing"; exit 1; }
+          grep -q "Qwen/Qwen2.5-7B-Instruct-1M" examples/baseline_niah.py || { echo "DRIFT: baseline_niah.py model ref drifted"; exit 1; }
+          grep -q "bitsandbytes" examples/baseline_niah.py || { echo "DRIFT: baseline_niah.py int4 quant ref drifted"; exit 1; }
+
+      - name: Verify Phase 1 baseline JSON evidence cells (cost-tier table claim backing)
+        run: |
+          for ctx in 4000 5000 6000 8000; do
+            test -f "artifacts/baseline_${ctx}.json" || { echo "DRIFT: artifacts/baseline_${ctx}.json missing (README cost-tier cell unverifiable)"; exit 1; }
+          done
+          # 4k cell must be PASS (README claims it as the ceiling success cell)
+          grep -q '"status": "PASS"' artifacts/baseline_4000.json || { echo "DRIFT: baseline_4000.json status != PASS"; exit 1; }
+          grep -q '"needle_found": true' artifacts/baseline_4000.json || { echo "DRIFT: baseline_4000.json needle_found != true"; exit 1; }
+          # 5k/6k/8k must be OOM (README claims OOM ceiling above 4k)
+          for ctx in 5000 6000 8000; do
+            grep -q '"status": "OOM"' "artifacts/baseline_${ctx}.json" || { echo "DRIFT: baseline_${ctx}.json status != OOM (claimed in README)"; exit 1; }
+          done
+
+      - name: Verify README cost-tier table cites JSON evidence by URL
+        run: |
+          grep -q "artifacts/baseline_4000.json" README.md || { echo "DRIFT: README missing baseline_4000.json link"; exit 1; }
+          grep -q "artifacts/baseline_5000.json" README.md || { echo "DRIFT: README missing baseline_5000.json link"; exit 1; }
+          grep -q "artifacts/baseline_8000.json" README.md || { echo "DRIFT: README missing baseline_8000.json link"; exit 1; }
+
+      - name: Verify ADR-007 documents VRAM ceiling characterization
+        run: |
+          grep -q "ADR-007" memory_bank/decisionLog.md || { echo "DRIFT: decisionLog missing ADR-007"; exit 1; }
+          grep -q "6GB VRAM" memory_bank/decisionLog.md || { echo "DRIFT: ADR-007 missing 6GB VRAM ceiling characterization"; exit 1; }
+
       - name: Summary
         run: echo "All drift checks passed."

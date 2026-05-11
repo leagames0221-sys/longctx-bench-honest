@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "task": "niah_single",
+  "model": "Qwen/Qwen2.5-7B-Instruct-1M",
+  "quantization": "int4-nf4-bnb",
+  "context_tokens_target": 4000,
+  "depth_pct": 50.0,
+  "seed": 42,
+  "needle_value": "2867825",
+  "haystack_source": "PaulGrahamEssays (49 essays, repeated as needed)",
+  "host": {
+    "gpu": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+    "vram_total_gb": 6.0,
+    "cuda_version": "12.4",
+    "torch_version": "2.5.1+cu124"
+  },
+  "context_tokens_actual": 3851,
+  "model_load_sec": 74.45,
+  "vram_after_model_load_gb": 5.178,
+  "output_text": "2867825",
+  "inference_sec": 251.89,
+  "peak_vram_gb": 10.8,
+  "needle_found": true,
+  "status": "PASS"
+}

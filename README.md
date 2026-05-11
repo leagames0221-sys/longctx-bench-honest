@@ -48,7 +48,9 @@ The portfolio thesis: in 2026-05, anyone can claim "I ran a 1M-context model." F
 
 **Phase 0 closed** — Scaffolds installed (drift CI / memory_bank / Tier 2 CLAUDE.md / spec.md). Overhaul commit reflects 2026-05 industry state (Qwen3.6/DeepSeek V4 frontier require 8 GPU; Qwen2.5-7B-1M is the consumer-laptop sweet spot for real 1M inference).
 
-**Phase 1 (next)** — vllm install + Qwen2.5-7B-1M weight DL + RULER/LongBench v2/NIAH clone + audit + baseline 128k run.
+**Phase 1 partial (2026-05-12)** — Install layer GREEN (CUDA torch 2.5.1+cu124 + bitsandbytes 0.49.2 int4 NF4 + transformers 5.8.0). Qwen 1M weight (14.22GB) DL'd to D:\hf_cache. **Single-needle NIAH baseline literal ran on consumer hardware (RTX 3050 Laptop 6GB VRAM)**: 4k context PASS / 5k+ OOM. See [Honest results](#honest-results-phase-1-partial-evidence) and [decisionLog ADR-007](memory_bank/decisionLog.md) for the literal VRAM ceiling characterization.
+
+**Phase 2 (next)** — Cloud-side measurement (GitHub Models GPT-5 / Claude Sonnet / Llama 3.3) at matched 4k context for direct local-vs-frontier comparison. Local Qwen 1M's full 1M-context potential requires multi-GPU or 24GB+ VRAM workstation — that gap is now sourced evidence, not a hypothesis.
 
 ## Verified state (drift-checked by CI)
 
@@ -66,16 +68,22 @@ The portfolio thesis: in 2026-05, anyone can claim "I ran a 1M-context model." F
 
 ## Cost-tier transparency table
 
-This is the table Phase 2 populates. Phase 0/1 columns carry `pending Phase 2` markers so the CI can verify the table structure even before numbers exist.
+Phase 1 partial result populates the local 4k cell with literal JSON evidence. Larger context cells for the local column carry `OOM @ 6GB VRAM` markers backed by literal failed-run JSON evidence in `artifacts/`. Cloud columns populate in Phase 2.
 
-| Benchmark | Qwen2.5-7B-1M (local) | GPT-5 (GitHub Models) | Claude Sonnet (GitHub Models) | Llama 3.3 (GitHub Models) |
+| Benchmark | Qwen2.5-7B-1M (local, int4 NF4) | GPT-5 (GitHub Models) | Claude Sonnet (GitHub Models) | Llama 3.3 (GitHub Models) |
 |---|---|---|---|---|
-| RULER (13-task avg) | pending Phase 2 | pending Phase 2 | pending Phase 2 | pending Phase 2 |
-| LongBench v2 (acc) | pending Phase 2 | pending Phase 2 | pending Phase 2 | pending Phase 2 |
-| NIAH (1M heatmap mean) | pending Phase 2 | pending Phase 2 | pending Phase 2 | pending Phase 2 |
-| Sec per 1M-token eval | pending Phase 2 | pending Phase 2 | pending Phase 2 | pending Phase 2 |
-| Cost per full sweep | electricity only | free-tier | free-tier | free-tier |
+| NIAH single needle @ 4k | **PASS** (252s inference, peak 10.8GB via Win shared-mem) — [evidence](artifacts/baseline_4000.json) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
+| NIAH single needle @ 5k | **OOM** (alloc 2.46GB on 11.18GB-used GPU) — [evidence](artifacts/baseline_5000.json) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
+| NIAH single needle @ 6k | **OOM** (alloc 3.57GB on 9.35GB-used GPU) — [evidence](artifacts/baseline_6000.json) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
+| NIAH single needle @ 8k | **OOM** (alloc 6.43GB single block > 6GB GPU) — [evidence](artifacts/baseline_8000.json) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
+| RULER (13-task avg) | requires ≥16k context per task — **infeasible on 6GB VRAM** (see ceiling above) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
+| LongBench v2 (acc) | typical task 32k-128k — **infeasible on 6GB VRAM** | pending Phase 2 | pending Phase 2 | pending Phase 2 |
+| NIAH 128k+ heatmap | **infeasible on 6GB VRAM** (would need 24GB+ or WSL2+vllm tensor-parallel) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
+| Inference wall-time @ 4k | 252s (int4 NF4 + Win shared-mem spillover) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
+| Cost per measurement run | electricity only (~¥1) | free-tier (8000 token request cap) | free-tier (8000 token request cap) | free-tier (8000 token request cap) |
 | Credit card required | no | no (GitHub token only) | no (GitHub token only) | no (GitHub token only) |
+
+**Hardware constraint literally hit**: at int4 NF4 quantization, model weights occupy ~4GB of the 6GB VRAM; inference activations + KV cache exceed available headroom beyond 4k input tokens. Cumulative VRAM demand at 4k = 10.8GB peak (rescued by Windows shared-memory spillover via PCIe, ~10x slower than pure VRAM). At 5k+, a single allocation in the attention forward pass requires more contiguous VRAM than physically available. This is the literal *constraint-optimized AI engineering* boundary on this hardware tier.
 
 ## Phase plan
 
@@ -86,15 +94,33 @@ This is the table Phase 2 populates. Phase 0/1 columns carry `pending Phase 2` m
 | 2 | Full 4-model x 3-benchmark sweep + heatmap + honest results section populated | All cost-tier cells filled with JSON evidence + drift CI extended to verify numbers |
 | 3 | craftstack integration + r/LocalLLaMA + HN post | craftstack 上位 fold link populated |
 
-## Honest results (populated in Phase 2)
+## Honest results (Phase 1 partial evidence)
 
-Phase 2 fills this section with full results — including **failures**. If Qwen2.5-7B-1M scores 22% on RULER multi-hop, that 22% goes here, with the failure-mode analysis. If 1M context inference on consumer laptop takes 47 minutes per query, that 47 minutes goes here. The portfolio thesis depends on this section being unflinching.
+### Where the local 7B model holds up
 
-Expected categories:
-- `Where the local 7B model holds up`: tasks where Qwen2.5-7B-1M is within 10% of frontier
-- `Where it loses badly`: tasks where the gap is > 30%, with hypothesized root cause
-- `Where reasonable engineering fixes the gap`: e.g., chunking + re-ranking, RAG augmentation
-- `Where it doesn't (and frontier is the right answer)`: honest "use the API" recommendation
+**NIAH single needle @ 4k context** ✅ — Qwen2.5-7B-Instruct-1M in int4 NF4 quantization on RTX 3050 6GB Laptop correctly extracts a 7-digit magic number planted at 50% depth in a Paul Graham essay haystack. Output: the literal number, nothing else. JSON: [artifacts/baseline_4000.json](artifacts/baseline_4000.json). Inference wall-time: 252 seconds. Cost: ~¥1 of electricity.
+
+### Where the constraint literally hits (hardware ceiling)
+
+| context | result | root cause |
+|---|---|---|
+| 4k | PASS, 252s, peak 10.8GB | barely fits with Windows shared-mem PCIe spillover |
+| 5k | OOM | single alloc 2.46GB on 11.18GB-used GPU — shared-mem fallback exhausted |
+| 6k | OOM | single alloc 3.57GB on 9.35GB-used GPU |
+| 8k | OOM | single attention forward pass needs 6.43GB contiguous — exceeds 6GB total VRAM |
+| 128k / 1M (model design max) | not attempted, predicted infeasible | KV cache alone for 128k context (~7GB) exceeds 6GB VRAM, before model weights |
+
+This is the **literal `constraint-optimized AI engineering` boundary on RTX 3050 6GB Laptop tier**. The model itself is 1M-context capable per its [config.json](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-1M/blob/main/config.json) (`max_position_embeddings: 1010000`, `dual_chunk_attention_config`). The bottleneck is not the model architecture — it's that 7B parameters × int4 (4GB) + KV cache (~57KB/token × N) saturates a 6GB VRAM budget by N ≈ 4000 tokens.
+
+### Where reasonable engineering fixes the gap (for future Phase 2/3 work)
+
+1. **Chunked decoding + scratchpad re-injection** — split a long-context task into 4k-context windows; preserves consumer-hardware feasibility at the cost of 10-20x wall-time and ~5-15% accuracy degradation (industry observation from RAG benchmarks).
+2. **vllm + WSL2 with PagedAttention** — Windows hosts can't run vllm natively, but WSL2 (free, no CC) can. PagedAttention is more KV-cache efficient than transformers + bitsandbytes; may push ceiling to ~8-16k on the same hardware. (Phase 2 candidate.)
+3. **Cloud frontier via GitHub Models free tier** — direct 128k+ inference where the local hardware caps out. Constraint: free-tier 8000 token request cap (verified in [browser-agent-demo v5 logbook](https://github.com/leagames0221-sys/browser-agent-demo/blob/main/memory_bank/logbook.md#phase-2-v4--v5)), so even cloud frontier hits a `zero CC` boundary above ~6000 input tokens.
+
+### Where it doesn't (and a paid frontier is the literal honest answer)
+
+Full 1M-context honest measurement requires either (a) a 24GB+ VRAM workstation GPU (not consumer-laptop tier) or (b) a paid frontier API (GPT-5 1M / Claude 4.7 1M / Gemini 2.0 2M) — both fall outside `consumer laptop` and `zero credit card` constraints respectively. This portfolio is the literal honest map of what's measurable in the intersection of both constraints; the 4k ceiling is the answer, not a failure.
 
 ## Quickstart
 

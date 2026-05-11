@@ -46,8 +46,12 @@ datasets/
 *.parquet
 *.jsonl.gz
 
-# Eval artifacts (regenerable)
-artifacts/
+# Eval artifacts — JSON evidence IS the literal portfolio deliverable (commit it).
+# Cost-tier table cells cite artifacts/*.json by URL; without commit those links break + drift-CI can't verify.
+# Only exclude large media (heatmap PNG/GIF) — those go in artifacts/heatmaps/ subdir for selective ignore.
+artifacts/heatmaps/
+artifacts/*.png
+artifacts/*.gif
 heatmaps/
 *.png.tmp
 

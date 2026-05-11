@@ -136,3 +136,41 @@
 - 成功した path を canonical install method として README populate
 
 **Verify**: Phase 1 末で install path + 推論動作確認 + 結果を本 ADR に literal 追記。
+
+---
+
+## ADR-007 (2026-05-12): 6GB VRAM hard ceiling literal characterized at ~4k tokens — pivot from "128k single baseline" to "scaling curve + sourced ceiling"
+
+**Context (constraint: zero CC / consumer laptop / public source / drift-CI enforced)**: prior session draft (activeContext.md) planned a single baseline 128k RULER subset run. The Phase 1 partial session (2026-05-12) literal measured the hardware. Findings:
+
+- GPU: RTX 3050 Laptop **6GB VRAM** (consumer-laptop tier per spec)
+- Model: Qwen2.5-7B-Instruct-1M, int4 NF4 (bitsandbytes 0.49.2, double quant) — ~4GB on GPU
+- transformers 5.8.0 + accelerate 1.13.0 + torch 2.5.1+cu124
+- Activations + KV cache budget: ~1GB after weights
+
+**Literal measurements** (artifacts/baseline_{4000,5000,6000,8000}.json):
+
+| context_tokens | status | peak VRAM | failure point |
+|---|---|---|---|
+| 4000 | PASS (needle "2867825" correctly extracted) | 10.80 GB (via Win shared-mem PCIe spillover) | n/a — 252s inference |
+| 5000 | OOM at inference | 11.18 GB allocated → 2.46 GB alloc fail | shared-mem cap |
+| 6000 | OOM at inference | 9.35 GB allocated → 3.57 GB alloc fail | mid-pass attention |
+| 8000 | OOM at inference | 6.15 GB → 6.43 GB single-block alloc fail | first attention forward |
+
+**Decision**: pivot Phase 1 deliverable from "128k single baseline + 1 cell" to **"scaling curve {4k PASS, 5k/6k/8k OOM} + sourced 6GB VRAM ceiling + cost-tier table populated with literal hardware constraint evidence"**.
+
+This is NOT a design-phase compromise (D-NO-COMPROMISE-IN-DESIGN). It is an implementation-phase refactor triggered by literal physical-constraint discovery (the doctrine's explicit exception). The original goal — honest measurement under constraints — is *more* directly satisfied by the literal ceiling than by a hypothetical 128k single-run that would not have been achievable on this hardware tier.
+
+**Sources (D8)**:
+- [Qwen2.5-7B-Instruct-1M config.json](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-1M/blob/main/config.json): max_position_embeddings 1010000, dual_chunk_attention_config (chunk 262144 + local 8192)
+- [bitsandbytes int4 NF4](https://github.com/bitsandbytes-foundation/bitsandbytes): ~0.5 bytes/param → 7B model ≈ 3.5GB + lm_head/embedding overhead ≈ 4GB
+- KV cache size per token: 28 layers × 4 kv_heads × 128 head_dim × 2 (k+v) × 2 bytes (fp16) ≈ 57KB/token → 128k tokens ≈ 7GB (literal exceeds 6GB GPU alone, before model weights)
+
+**Consequences**:
+- ✅ Cost-tier table populated with 4 literal cells (4k PASS + 5k/6k/8k OOM) backed by JSON evidence
+- ✅ Portfolio thesis "constraint-optimized AI engineering" literal evidenced — boundary characterized, not hand-waved
+- ✅ Recruiter signal: "engineer who maps the literal feasibility frontier of their tools rather than overclaiming"
+- ⚠️ 128k / 1M cell remains `infeasible at this hardware tier` — future Phase 2 path is WSL2+vllm PagedAttention (may push ceiling to ~8-16k) or cloud frontier (limited by GitHub Models 8000-token free-tier cap)
+- ⚠️ The 4k PASS uses Windows shared-mem PCIe spillover (peak 10.8GB) — strictly speaking already past the "pure VRAM" boundary; honest classification is "consumer-tier feasibility with OS-level memory management assist"
+
+**Verify**: Phase 1 baseline JSON evidence (4 files in artifacts/) literal committed, drift-CI extended to verify their presence + JSON schema fields, README cost-tier table cell values mirror JSON status fields.

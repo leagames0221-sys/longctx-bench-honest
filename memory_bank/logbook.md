@@ -328,3 +328,40 @@ Status: OOM at engine init (before any inference). Literal cause: int4 model wei
 - Cost-tier summary table embed (本 repo の 5-column matrix + browser-agent-demo の 5 layer journey)
 - Phase 3 完了後: r/LocalLLaMA + HN post drafting (thesis = "constraint-optimized AI engineering: literal map of the consumer-laptop intersection")
 
+
+---
+
+## 2026-05-12 — Phase 3: craftstack integration PR opened (session: portfolio-continue)
+
+**作業**:
+- craftstack repo (leagames0221-sys/craftstack) literal probed via gh api (no local clone, C: disk 9.6% free 保護)
+- 発見: craftstack matured into production-grade Next.js 16 monorepo (Boardly + Knowlex), 67 ADRs, 276 Vitest + 24 Playwright, branch protection on main per their ADR-0058
+- Phase 3 plan re-scoped: 「上位 fold link」 → 「## Related portfolio work」 section addition near bottom (before License), via PR workflow (branch protection enforce)
+- Built insertion via Python helper (avoid command-line base64 size limit for gh api PUT)
+- PR opened: https://github.com/leagames0221-sys/craftstack/pull/70
+
+**Section content (literal added to craftstack/README.md)**:
+- 2-row table linking browser-agent-demo + longctx-bench-honest with thesis-aligned summaries
+- Cross-repo unifying thesis paragraph: "constraint-optimized engineering — craftstack answers for full-stack web; the two siblings answer for AI engineering"
+- All 3 sibling ADR links (ADR-006 / 007 / 008 / 009) literal cited
+
+**error**:
+- gh api PUT with --raw-field hit "Argument list too long" (40KB base64 content > shell arg limit) → switched to --input JSON file workflow (clean)
+- Python `python3` on Git Bash returned exit 49 + /tmp path resolution mismatch (Windows Python sees \tmp not /tmp) → wrote helper script to %TEMP% explicitly
+
+**進捗**: PR open + CI running (Vercel preview + lint/typecheck/test/build + doc drift detect + knowlex integration + a11y + CodeQL all queued/running). User self-merge after CI green.
+
+**Final Phase 1+2+3 deliverable summary (★★★ tier portfolio)**:
+- **3 ADRs**: ADR-007 (Win 6GB VRAM ceiling 4k) + ADR-008 (cloud free-tier honest map, Claude absent, gpt-5 unavailable, 4000-token cap) + ADR-009 (WSL2 vllm cannot fit weights+activations on 6GB, Windows shared-mem was the literal enabler)
+- **11 JSON evidence files**: 4 Win local (4k/5k/6k/8k) + 6 cloud (gpt-4.1-mini/gpt-5×2/llama-3.3-70b/deepseek-v3×2) + 1 WSL2 vllm
+- **3 runners**: examples/baseline_niah.py (Win transformers) + cloud_niah.py (GitHub Models) + wsl_vllm_niah.py (WSL2 vllm)
+- **README**: Status section literal updated with Phase 1/2a/2b each, 5-column cost-tier transparency table (Qwen local + 4 cloud), Honest results full populated, Cloud free-tier honest map new section
+- **drift-CI**: 22+ verify steps green (license + tier 2 + memory bank + cost-tier + honest results + selected under + why best + pyproject + dependabot + disk layout + pip-audit + 4 baseline cells + cloud runner + 6 cloud cells + cloud section + WSL vllm + ADR-007/008/009)
+- **Cross-repo integration**: craftstack PR #70 open, linking both AI-eng portfolio siblings with thesis-aligned 2-row summary table
+
+**Total session output (this 1 conversation)**:
+- 6+ git commits to longctx-bench-honest
+- 1 PR opened to craftstack
+- 0 credit card transactions, 0 paid API usage, 0 supercomputer / non-consumer hardware
+- All work literal reproducible from public sources
+

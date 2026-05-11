@@ -2,46 +2,56 @@
 
 ## Current phase
 
-**Phase 1 partial COMPLETE (2026-05-12)** — Install layer GREEN + 4-cell NIAH scaling literal run + 6GB VRAM ceiling characterized + JSON evidence committed + README populated + ADR-007 + drift-CI 19/19 GREEN. Phase 2 (cloud frontier comparison via GitHub Models) is next.
+**Phase 1 + Phase 2a + Phase 2b COMPLETE (2026-05-12). Phase 3 PR open.** Full constraint-optimized AI engineering portfolio thesis literal evidenced from 3 angles: Windows local 6GB VRAM ceiling, GitHub Models free-tier cloud accessibility map, and WSL2 vllm negative result. craftstack cross-repo integration PR [#70](https://github.com/leagames0221-sys/craftstack/pull/70) open pending CI green + user self-merge.
 
 ## Current focus
 
-Phase 1 partial deliverable shipped to GitHub main ([commit bc9ae3d](https://github.com/leagames0221-sys/longctx-bench-honest/commit/bc9ae3d)). 4 JSON evidence files + 1 NIAH runner + README cost-tier populated + ADR-007 ceiling characterization + drift-CI extended with 4 new artifact-verify steps.
+Session-end state. All major deliverables shipped. Awaiting:
+1. craftstack PR #70 CI green + user self-merge (status: 10+ checks running, Vercel + Next.js builds typically 10-15 min)
+2. (Optional, next session) r/LocalLLaMA + Hacker News post drafting after PR merged
 
-**Literal hardware ceiling sourced (★★★ tier evidence)**:
-- 4k context: PASS (252s inference, peak 10.8GB via Win shared-mem PCIe spillover, needle correctly extracted)
-- 5k+ context: OOM (single attention alloc exceeds 6GB physical + shared-mem fallback cap)
-- 128k / 1M: infeasible at this hardware tier (sourced in README + ADR-007 with citation chain)
+## Completed Phase summary (★★★ tier evidence)
 
-## Next concrete steps (Phase 2 entry)
+| Phase | Deliverable | Evidence |
+|---|---|---|
+| 0 | Scaffold + drift CI installed | commit dc5480b initial push |
+| 1 partial | Windows transformers 4-cell scaling, 6GB VRAM ceiling characterized at 4k | 4 baseline_*.json + ADR-007 + commit bc9ae3d |
+| 2a | Cloud comparison via GitHub Models free tier, 4 model probe, 6 cells | 6 cloud_*.json + ADR-008 + commit 01c4bc1 |
+| 2b | WSL2 + vllm NEGATIVE RESULT — Linux/vllm cannot fit weights+activations on 6GB | wsl_vllm_4000.json + ADR-009 + commit e877718 |
+| 3 (open) | craftstack PR #70 integration | [PR link](https://github.com/leagames0221-sys/craftstack/pull/70) |
 
-1. **GitHub Models token setup**: `gh auth token` → `.env` (gitignore済) with `GITHUB_TOKEN` literal export
-2. **Cloud cell runner**: `examples/cloud_niah.py` — OpenAI SDK with `base_url=https://models.github.ai/inference`, model param = `openai/gpt-5` / `meta/Llama-3.3-70B-Instruct` / `anthropic/claude-sonnet-4` (verify exact model_id strings via `gh api /catalog/models` or [marketplace catalog API](https://github.com/marketplace/models))
-3. **Same NIAH @ 4k task** literal repeated across the 3 cloud models for direct local-vs-frontier comparison at matched context size
-4. **Verify 4k input fits in 8000 token free-tier cap** (4k + ~100 output ≈ 4100 tokens = within cap ★★★, evidence: browser-agent-demo v5 hit cap at full DOM context ≈ 6000+ tokens)
-5. **Cost-tier table populate**: 3 cloud cells × 4k row literal filled with PASS/FAIL + inference_sec + cost (¥0 for free tier)
-6. **JSON evidence**: `artifacts/cloud_gpt5_4000.json` / `cloud_claude_4000.json` / `cloud_llama_4000.json`
-7. **drift-CI extension**: 3 new step (cloud artifacts + status + URL)
+## Aggregate counts (this PJ alone)
 
-## Phase 2 后半 candidate (optional, after cloud cells)
+- **3 ADRs** (007, 008, 009) — all with citation chains
+- **11 JSON evidence files** in `artifacts/`
+- **3 runners**: baseline_niah.py / cloud_niah.py / wsl_vllm_niah.py
+- **5-column cost-tier table** populated with literal cells + JSON URL citations
+- **drift-CI 22+ steps** green on main HEAD ([commit 62e8818](https://github.com/leagames0221-sys/longctx-bench-honest/commit/62e8818))
 
-- **WSL2 + vllm PagedAttention**: literal install path verify (free, no CC), check if PagedAttention extends ceiling from 4k → 8-16k on same 6GB GPU
-  - If yes: re-run scaling experiment in WSL2, populate cost-tier with extended cells, document WSL2 install path in SETUP.md
-  - If no / install fail: document the negative result as honest evidence
-- **Heatmap visualization**: NIAH-style depth × context heatmap for the 4k cell (single depth = 50% in current run, extend to multiple depths for portfolio visual)
+## Cross-repo portfolio thesis (final form, ★★★★)
 
-## Phase 3 (after Phase 2)
+> **Constraint-optimized AI engineering** under (zero credit card, consumer laptop, public source / OSS only, drift-CI enforced):
+>
+> - **Local 6GB VRAM tier** — 4k context ceiling, rescued by Windows shared-mem PCIe spillover (ADR-007); Linux/vllm strict allocator fails (ADR-009)
+> - **Cloud zero-CC tier** — gpt-4.1-mini + llama-3.3-70b reachable at 4k (~30-50x faster than local); gpt-5 unavailable; Anthropic Claude absent; some models capped at 4000 tokens (ADR-008)
+> - **Cross-repo siblings**: craftstack (full-stack web $0/mo) + browser-agent-demo (5-layer defense-in-depth journey) + this repo (long-context measurement) = three domains, one thesis, all literal JSON / log evidence
 
-- craftstack 上位 fold に 2 repo (browser-agent-demo + longctx-bench-honest) link + thesis 1 行 + cost-tier summary
-- r/LocalLLaMA + Hacker News post drafting ("constraint-optimized AI engineering: 4k VRAM ceiling on RTX 3050 + free-tier cloud cap at 6k = the literal map of consumer-laptop long-context measurement")
+## Next session candidates (Phase 4 — Optional)
+
+1. **r/LocalLLaMA post drafting** — title candidate: "Honest map of 6GB VRAM consumer-laptop long-context limits: 4k local ceiling, cloud free-tier disparity, and the counterintuitive WSL2 vllm failure"
+2. **Hacker News post drafting** — title candidate: "Show HN: constraint-optimized AI engineering portfolio with literal $0 + 11 JSON evidence cells + 3 ADRs"
+3. **Heatmap visualization** — NIAH multi-depth × context heatmap PNG for the 4k cell (single depth currently; extend to 0/25/50/75/100% depths if 4k headroom permits)
+4. **WebArena / OSWorld subset attempt** at 4k context using cloud cells (Phase 2a infrastructure already in place)
+5. **Lifecycle cleanup decision** — when next-session AI confirms stable state, D: footprint (~20GB) is safe to delete per README Lifecycle section
 
 ## Blockers
 
-なし。 Phase 2 着手 OK (Phase 1 partial deliverable がGitHub main に literal shipped、 drift-CI green、 evidence URL 全件 live)。
+なし。 craftstack PR #70 = user self-merge after CI green (technical only, no scope blocker).
 
-## Out of scope (current phase)
+## Out of scope (acknowledged limits)
 
-- 真の 1M context inference (consumer 6GB tier では物理不可、 ADR-007 で literal 記録済、 future RTX 4090 24GB / WSL2 PagedAttention path のみ candidate)
+- 真の 1M context inference (consumer 6GB tier 物理不可、 ADR-007 + 009 literal evidenced)
 - paid API integration (zero CC 制約違反、 literal scope 外)
-- 日本語 domain dataset (ADR-004 で literal scope 外確定済)
-- 30s 動画撮影 (Phase 3 craftstack 統合時の任意 deliverable)
+- 8 GPU server / workstation 級 hardware (D-CONSUMER-HW 違反)
+- Anthropic Claude integration (literal absent from GitHub Models, requires paid Anthropic API)
+- gpt-5 access (literal blocked on free tier per ADR-008)

@@ -2,7 +2,7 @@
 
 ## What
 
-4 long-context LLM (Qwen2.5-7B-1M local + GPT-5 + Claude Sonnet + Llama 3.3 via GitHub Models) × 3 industry-current benchmarks (RULER + LongBench v2 + NIAH 補助) の literal honest measurement repo。 全 cell に JSON evidence、 全数値が drift-CI で verified、 全 cost が ¥0 (electricity + free tier)。
+Long-context LLM honest measurement repo across 1 local model (Qwen2.5-7B-Instruct-1M) + reachable GitHub Models cloud frontier × NIAH single-needle benchmark at literal feasible context sizes. Originally planned as "Qwen + GPT-5 + Claude Sonnet + Llama 3.3 × RULER + LongBench v2 + NIAH supplement" but **Phase 2a probe found Claude is not in GitHub Models catalog at all, and gpt-5 returns `unavailable_model` on free tier** (ADR-008). Final cloud lineup: gpt-4.1-mini + llama-3.3-70b-instruct + deepseek-v3-0324 + (gpt-5 = honest UNAVAILABLE row). Full RULER + LongBench v2 sweeps are infeasible on 6GB VRAM (ADR-007) — single-needle at 4k is the literal characteristic point. Every cell has JSON evidence, every numeric claim is drift-CI verified, total cost is ¥0 (electricity + free tier).
 
 ## Why
 

@@ -95,17 +95,43 @@ uv run pip-audit --strict
 "GITHUB_TOKEN=ghp_..." | Out-File .env -Encoding utf8 -NoNewline
 ```
 
-## Step 6. Baseline run (RULER 128k subset on Qwen2.5-7B-1M)
+## Step 6. Baseline run — Phase 1 + 2a actual delivery (not the original 128k goal)
 
-```bash
-# From WSL2 shell (vllm available)
-uv run python eval/ruler/scripts/data/prepare.py --task niah_single_1 --max_seq_length 131072
-uv run python -m vllm.entrypoints.openai.api_server --model Qwen/Qwen2.5-7B-Instruct-1M --max-model-len 131072 &
-# Wait for server up, then run baseline eval
-uv run python eval/run_baseline.py --benchmark ruler --subset niah_single_1 --context-size 131072
+> **Reproducibility note**: Phase 0/1 plan called for "RULER 128k subset baseline". Phase 1 measurement (ADR-007) showed this is **infeasible on 6GB VRAM** — the literal ceiling on RTX 3050 Laptop is ~4k tokens. SETUP.md Step 6 reflects what actually works on this hardware tier; the 128k goal is moved to Phase 4 candidate work (requires ≥24GB VRAM or paid cloud, both outside the constraint set).
+
+### 6a. Local Windows transformers path (single-needle NIAH at 4k, the literal ceiling)
+
+```powershell
+# Windows host, after Steps 1-5 complete + uv sync ran with the pyproject.toml
+# in this repo (which pins torch==2.5.1+cu124 + bitsandbytes==0.49.2 + transformers>=4.46 via the
+# [tool.uv.sources] cu124 wheel index — same versions that produced artifacts/baseline_*.json).
+$env:VIRTUAL_ENV = "D:\venvs\longctx-bench-honest"
+uv run python examples/baseline_niah.py --context-tokens 4000 --depth-pct 50
+# Expected: artifacts/baseline_4000.json with status="PASS", inference_sec ≈ 200-300s
 ```
 
-**Pass condition**: heatmap PNG 出力 + JSON evidence in `artifacts/`、 公式 RULER reference 数値範囲内.
+To reproduce the literal ceiling characterization, also run 5k / 6k / 8k → expect status="OOM".
+
+### 6b. Cloud comparison (GitHub Models, free tier)
+
+```bash
+# After Step 5 token setup, GITHUB_TOKEN env var set
+uv run python examples/cloud_niah.py --model openai/gpt-4.1-mini --context-tokens 4000
+uv run python examples/cloud_niah.py --model meta/llama-3.3-70b-instruct --context-tokens 4000
+# Expected: artifacts/cloud_*.json with status="PASS", inference_sec ≈ 5-10s
+```
+
+### 6c. WSL2 vllm path (Phase 2b negative result — documented for completeness)
+
+```bash
+# Inside WSL2 Ubuntu after uv sync (which pins vllm==0.7.3 to match ADR-009 evidence):
+uv run python examples/wsl_vllm_niah.py --context-tokens 4000
+# Expected: artifacts/wsl_vllm_4000.json with status="OOM"
+# vllm 0.7.3 on 6GB VRAM cannot fit Qwen 7B int4 + activations — see ADR-009 for the literal log evidence
+# and 3 alternative causal hypotheses with falsification paths.
+```
+
+**Pass condition**: all 7 JSON evidence files materialize in `artifacts/` and match the status field claimed in README cost-tier table. drift-CI enforces this on every push.
 
 ## Step 7. Phase 1 commit
 

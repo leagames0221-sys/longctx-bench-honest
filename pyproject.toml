@@ -9,8 +9,16 @@ authors = [{ name = "leagames0221-sys" }]
 
 dependencies = [
     # Inference engine (vllm 79k★ Apache 2.0, audited 2026-05-11)
-    # Note: vllm Windows native install historically unstable, WSL2 fallback ADR-005
-    "vllm>=0.7.0; platform_system != 'Windows'",
+    # Pinned to 0.7.3 to match ADR-009 wsl_vllm_4000.json evidence literal (newer vllm needs CUDA 12.8+ driver,
+    # outside consumer-laptop constraint). vllm 0.7.3 needs transformers 4.48.x; if upgraded to vllm 0.8+
+    # also bump transformers — see ADR-009 for the literal API drift incident.
+    "vllm==0.7.3; platform_system != 'Windows'",
+    # PyTorch CUDA stack — pinned to exact versions matching baseline_*.json evidence (torch_version field).
+    # cu124 wheels via [tool.uv.sources] below; driver 12.6 + CUDA 12.4 torch is the verified combination.
+    "torch==2.5.1",
+    "torchvision==0.20.1",
+    # Runtime int4 NF4 quantization (Phase 1 Windows path uses this to fit 7B on 6GB VRAM, ADR-007)
+    "bitsandbytes==0.49.2",
     # HuggingFace stack (Qwen 2.5-7B-1M model load)
     "transformers>=4.46.0",
     "huggingface-hub>=0.26.0",
@@ -19,9 +27,11 @@ dependencies = [
     "safetensors>=0.4.5",
     # Benchmark deps (RULER 13 task + LongBench v2 503 MCQ + NIAH viz)
     "datasets>=3.0.0",
-    "numpy>=2.0",
+    # numpy>=1.26 (not >=2.0) so the Linux/vllm 0.7.3 path resolves — vllm 0.7.3 transitively pins numpy<2.0.
+    # The Windows transformers path is happy with either 1.x or 2.x; resolver picks 1.x to satisfy both.
+    "numpy>=1.26",
     "pandas>=2.2",
-    # OpenAI-compat SDK (GitHub Models 経由 GPT-5 / Claude / Llama)
+    # OpenAI-compat SDK (GitHub Models 経由 gpt-4.1-mini / llama-3.3-70b / deepseek-v3 — see ADR-008 for substitution rationale)
     "openai>=1.50.0",
     # Visualization (heatmap PNG)
     "matplotlib>=3.9.0",
@@ -46,6 +56,18 @@ package = false
 # venv path is set via UV_PROJECT_ENVIRONMENT env var to D:\venvs\longctx-bench-honest
 # to preserve C: drive capacity (see README "Disk layout" section)
 # HF_HOME + HF_HUB_CACHE env vars redirect 15GB model weights to D:\hf_cache
+
+# PyTorch CUDA wheel index — required for GPU inference path (Phase 1 Windows + Phase 2b WSL2)
+# Driver 12.6 + CUDA 12.4 torch wheel is the verified combination; cu126 wheels need driver 12.8+
+# which would be a system-level change outside the consumer-laptop constraint.
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu124" }
+torchvision = { index = "pytorch-cu124" }
 
 [tool.ruff]
 line-length = 120

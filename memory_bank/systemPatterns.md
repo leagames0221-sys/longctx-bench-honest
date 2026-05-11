@@ -22,8 +22,8 @@
 **Mechanism**:
 1. cost-tier table は markdown table、 README L20-40 圏内に literal 配置 (上位 fold)
 2. Phase 0/1 では cell に `pending Phase 2` marker、 drift-check が table 構造 (4 column × 6 row) を verify
-3. Phase 2 で JSON evidence (`artifacts/<model>_<benchmark>_<timestamp>.json`) から `scripts/build_cost_table.py` で自動生成、 README に literal 書き戻し
-4. drift-check が 「README cost-tier table の数値 = JSON evidence の数値」 を CI で照合、 手動編集を構造的に検出
+3. Phase 2 で JSON evidence (`artifacts/<model>_<benchmark>_<context>.json`) を生成、 README cost-tier table を literal 直接 populate (Phase 2a 実装方式; Phase 0 plan の `scripts/build_cost_table.py` 自動生成は Phase 2b/3 candidate に残置)
+4. drift-check が 「README cost-tier table cell の status field = JSON evidence の status field」 を grep で literal 照合、 手書き drift を CI で検出 (`grep -q '"status": "PASS"' artifacts/baseline_4000.json` 等、 22+ step が green)
 
 **Invariant**: cost-tier table 数値 = JSON evidence のみ、 手書き編集禁止 (D-VERIFY-PRIORITY literal 順守)。
 
@@ -107,8 +107,10 @@
 
 ## Phase gate pattern
 
-各 Phase end は 「測れる完成品」 で gate される:
-- Phase 0: drift-check workflow green on first push + overhaul commit green
-- Phase 1: baseline 128k RULER subset + `pytest` 全 green + pip-audit + Dependabot
-- Phase 2: 4 model × 3 benchmark 全 cell 実測値 (or honest 不能宣言) + cost-tier table 自動生成 + Honest results + 30s 動画
-- Phase 3: craftstack 上位 fold link active + r/LocalLLaMA + HN 投稿完了
+各 Phase end は 「測れる完成品」 で gate される。 actual delivery state (2026-05-12):
+- Phase 0: ✅ drift-check workflow green on first push + overhaul commit green
+- Phase 1 partial: ✅ 4 baseline cells (4k PASS / 5k/6k/8k OOM) + ADR-007 (6GB VRAM ceiling characterized) + `pip-audit` GREEN + Dependabot configured. Original 128k RULER subset goal was infeasible at this hardware tier (ADR-007 documents why).
+- Phase 2a: ✅ 4 cloud models × {2k, 4k} = 6 cells (gpt-4.1-mini + llama-3.3-70b PASS @ 4k, gpt-5 UNAVAILABLE on free tier, deepseek-v3 PASS @ 2k / TOKEN_LIMIT @ 4k) + ADR-008 (Claude absent from catalog, gpt-5 free-tier blocked). Cost-tier table literal populated with ✅/❌/⏳/⛔ icon legend.
+- Phase 2b: ✅ NEGATIVE RESULT documented — WSL2 + vllm 0.7.3 cannot fit Qwen 7B int4 + activations on 6GB VRAM (weights 5.43GiB + activation peak 1.42GiB > 6GiB total). ADR-009 documents the literal vllm memory profile log + 3 alternative hypotheses (★★ tier, not yet experimentally isolated). Falsification path documented for future work.
+- Phase 3: ✅ craftstack PR #70 merged into main, "Related portfolio work" section live cross-linking the 2 AI portfolio siblings. r/LocalLLaMA + HN post drafts ready in `social_drafts.md` for user submission.
+- Phase 4 (future, optional): multi-depth NIAH heatmap @ 4k local ceiling (feasible within constraints; ~30 min measurement budget), falsification experiments for ADR-009's 3 hypotheses, automated `scripts/build_cost_table.py` to replace manual cost-tier population

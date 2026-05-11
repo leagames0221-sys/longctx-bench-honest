@@ -74,19 +74,29 @@ Phase 1 partial result populates the local 4k cell with literal JSON evidence. L
 
 > **Note on cloud model selection** (literal honest finding): the original Phase 0 plan referenced "GPT-5 / Claude Sonnet / Llama 3.3". The 2026-05-12 Phase 2a literal probe of the GitHub Models catalog API found: **Anthropic Claude is NOT present in the catalog at all** (zero CC + GitHub Models = no Claude access), and **gpt-5 returns `unavailable_model` on this free-tier account** (catalog-listed but inference-unavailable). The table substitutes 4 actually-reachable models for honest comparison.
 
+> **Cell status legend** — every cell either has JSON evidence or is honestly marked as not-yet-measured:
+> - ✅ **MEASURED** — cell value backed by JSON evidence under `artifacts/`, drift-CI enforces match
+> - ❌ **MEASURED FAILURE** (OOM / TOKEN_LIMIT / UNAVAILABLE) — failure mode literal observed, JSON evidence committed
+> - ⏳ **NOT MEASURED** — cell deliberately empty; would be feasible per catalog limits but Phase 2a focused on the 4k cell (matches local 4k for 1:1 comparison). Phase 2b/3 candidate.
+> - ⛔ **STRUCTURAL** — infeasible per literal hardware or free-tier constraints (sourced in ADR-007/008/009)
+>
+> Inference wall-time row footnote: cloud cells include only inference latency (model already loaded server-side); local cell includes 74s cold model load + 178s inference. Pure inference-only ratio is ~21x faster (cloud) vs cold-load-inclusive ratio of ~30x.
+
 | Benchmark | Qwen2.5-7B-1M (local, int4 NF4) | gpt-4.1-mini (GitHub Models) | llama-3.3-70b-instruct (GitHub Models) | deepseek-v3-0324 (GitHub Models) | gpt-5 (GitHub Models) |
 |---|---|---|---|---|---|
-| NIAH single needle @ 2k | (not run — local 4k cell is primary) | (not run) | (not run) | **PASS 1.72s** — [evidence](artifacts/cloud_deepseek-deepseek-v3-0324_2000.json) | **UNAVAILABLE** (model literal not accessible on free tier) — [evidence](artifacts/cloud_openai-gpt-5_2000.json) |
-| NIAH single needle @ 4k | **PASS** (252s, peak 10.8GB via Win shared-mem) — [evidence](artifacts/baseline_4000.json) | **PASS 8.54s** (prompt=3723 tok) — [evidence](artifacts/cloud_openai-gpt-4-1-mini_4000.json) | **PASS 5.17s** (prompt=3856 tok) — [evidence](artifacts/cloud_meta-llama-3-3-70b-instruct_4000.json) | **TOKEN_LIMIT** (free-tier cap=4000) — [evidence](artifacts/cloud_deepseek-deepseek-v3-0324_4000.json) | **TOKEN_LIMIT** (free-tier cap=4000) — [evidence](artifacts/cloud_openai-gpt-5_4000.json) |
-| NIAH single needle @ 5k | **OOM** (alloc 2.46GB on 11.18GB-used GPU) — [evidence](artifacts/baseline_5000.json) | likely PASS (catalog: 1M input) | likely PASS (catalog: 128k input) | **TOKEN_LIMIT predicted** (4000 cap) | **TOKEN_LIMIT predicted** (4000 cap) |
-| NIAH single needle @ 6k | **OOM** (alloc 3.57GB on 9.35GB-used GPU) — [evidence](artifacts/baseline_6000.json) | likely PASS | likely PASS | TOKEN_LIMIT predicted | TOKEN_LIMIT predicted |
-| NIAH single needle @ 8k | **OOM** (alloc 6.43GB single block > 6GB GPU) — [evidence](artifacts/baseline_8000.json) | likely PASS | likely PASS | TOKEN_LIMIT predicted | TOKEN_LIMIT predicted |
-| RULER (13-task avg) | requires ≥16k context per task — **infeasible on 6GB VRAM** | feasible (1M catalog cap) — Phase 2b/3 candidate | feasible (128k catalog cap) — Phase 2b/3 candidate | infeasible (4000 free-tier cap) | infeasible (free-tier unavailable) |
-| LongBench v2 (acc) | typical task 32k-128k — **infeasible on 6GB VRAM** | feasible — Phase 2b/3 candidate | feasible at 128k cap | infeasible (4000 free-tier cap) | infeasible (free-tier unavailable) |
-| NIAH 128k+ heatmap | **infeasible on 6GB VRAM** (would need 24GB+ or WSL2+vllm tensor-parallel) | feasible (1M catalog) — would burn free-tier quota | feasible at 128k | infeasible (4000 free-tier cap) | infeasible (free-tier unavailable) |
-| Inference wall-time @ 4k | 252s (int4 NF4 + Win shared-mem spillover) | **8.54s (~30x faster than local)** | **5.17s (~50x faster than local)** | 1.72s @ 2k cell | n/a (unavailable) |
-| Cost per measurement run | electricity only (~¥1) | free-tier, no CC | free-tier, no CC | free-tier, no CC | n/a (model unavailable) |
-| Credit card required | no | no (GitHub token only) | no (GitHub token only) | no (GitHub token only) | no (but model still inaccessible) |
+| NIAH single needle @ 2k | ⏳ (local 4k is primary cell) | ⏳ | ⏳ | ✅ **PASS 1.72s** — [evidence](artifacts/cloud_deepseek-deepseek-v3-0324_2000.json) | ❌ **UNAVAILABLE** (model not accessible on free tier) — [evidence](artifacts/cloud_openai-gpt-5_2000.json) |
+| NIAH single needle @ 4k | ✅ **PASS 252s** (peak 10.8GB via Win shared-mem; cold load 74s + inference 178s) — [evidence](artifacts/baseline_4000.json) | ✅ **PASS 8.54s** (prompt=3723 tok) — [evidence](artifacts/cloud_openai-gpt-4-1-mini_4000.json) | ✅ **PASS 5.17s** (prompt=3856 tok) — [evidence](artifacts/cloud_meta-llama-3-3-70b-instruct_4000.json) | ❌ **TOKEN_LIMIT** (free-tier cap=4000) — [evidence](artifacts/cloud_deepseek-deepseek-v3-0324_4000.json) | ❌ **TOKEN_LIMIT** (free-tier cap=4000) — [evidence](artifacts/cloud_openai-gpt-5_4000.json) |
+| NIAH single needle @ 5k | ❌ **OOM** (alloc 2.46GB on 11.18GB-used GPU) — [evidence](artifacts/baseline_5000.json) | ⏳ (catalog: 1M input — Phase 2b/3 candidate) | ⏳ (catalog: 128k input — Phase 2b/3 candidate) | ⛔ TOKEN_LIMIT predicted (4000 cap) | ⛔ free-tier unavailable |
+| NIAH single needle @ 6k | ❌ **OOM** (alloc 3.57GB on 9.35GB-used GPU) — [evidence](artifacts/baseline_6000.json) | ⏳ | ⏳ | ⛔ TOKEN_LIMIT predicted | ⛔ free-tier unavailable |
+| NIAH single needle @ 8k | ❌ **OOM** (alloc 6.43GB single block > 6GB GPU) — [evidence](artifacts/baseline_8000.json) | ⏳ | ⏳ | ⛔ TOKEN_LIMIT predicted | ⛔ free-tier unavailable |
+| RULER (13-task avg) | ⛔ requires ≥16k context per task — infeasible on 6GB VRAM | ⏳ feasible (1M catalog) — Phase 2b/3 candidate | ⏳ feasible (128k catalog) — Phase 2b/3 candidate | ⛔ infeasible (4000 free-tier cap) | ⛔ free-tier unavailable |
+| LongBench v2 (acc) | ⛔ typical task 32k-128k — infeasible on 6GB VRAM | ⏳ feasible — Phase 2b/3 candidate | ⏳ feasible at 128k cap | ⛔ infeasible (4000 free-tier cap) | ⛔ free-tier unavailable |
+| NIAH 128k+ heatmap | ⛔ infeasible on 6GB VRAM (would need 24GB+ or multi-GPU) | ⏳ feasible (1M catalog) — would consume free-tier quota | ⏳ feasible at 128k | ⛔ infeasible (4000 free-tier cap) | ⛔ free-tier unavailable |
+| Inference wall-time @ 4k | ✅ 252s incl. 74s cold load (~178s inference-only) | ✅ **8.54s** (~21x faster than local inference-only, ~30x faster than local cold-load-incl.) | ✅ **5.17s** (~34x faster vs local inference-only, ~49x faster vs cold-load-incl.) | ✅ 1.72s @ 2k cell (4k cell hit TOKEN_LIMIT) | ❌ n/a (model unavailable) |
+| Cost per measurement run | ✅ electricity only (~¥1) | ✅ free-tier, no CC | ✅ free-tier, no CC | ✅ free-tier, no CC | ⛔ n/a (model unavailable) |
+| Credit card required | no | no (GitHub OAuth token only) | no (GitHub OAuth token only) | no (GitHub OAuth token only) | no (but model inaccessible regardless) |
+
+**Sample-size disclosure (★★)**: each cell is `n=1` (single seed=42 × single depth=50% × single 7-digit magic-number needle). Industry NIAH benchmarks typically run multi-depth × multi-seed grids; this portfolio's cells are single-point measurements meant to characterize the literal hardware/cloud ceiling, not full statistical distributions. Multi-depth heatmap is a Phase 2b/3 candidate (feasible within the 4k local ceiling: 5+ depths × n=3 seeds ≈ 30 minutes of measurement budget).
 
 **Hardware constraint literally hit**: at int4 NF4 quantization, model weights occupy ~4GB of the 6GB VRAM; inference activations + KV cache exceed available headroom beyond 4k input tokens. Cumulative VRAM demand at 4k = 10.8GB peak (rescued by Windows shared-memory spillover via PCIe, ~10x slower than pure VRAM). At 5k+, a single allocation in the attention forward pass requires more contiguous VRAM than physically available. This is the literal *constraint-optimized AI engineering* boundary on this hardware tier.
 

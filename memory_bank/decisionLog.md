@@ -243,13 +243,31 @@ Maximum concurrency for 4200 tokens per request: 0.00x
 
 → literal arithmetic: **5.43 GiB (int4 model weights) + 1.42 GiB (activations) = 6.85 GiB > 6.00 GiB physical VRAM**. KV cache budget = -0.94 GiB. vllm allocates 0 GPU cache blocks → concurrency at 4200 tokens = 0.00x. Even at gpu_memory_utilization=1.0 (impossible), still exceeds total VRAM.
 
-**Critical honest finding (★★★★ portfolio gold)**:
+**Honest finding (★★ tier hypothesis, n=1 hardware × 1 inference engine pair)**:
 
-The Phase 1 Windows transformers 4k PASS (peak 10.8GB) was literally enabled by **Windows kernel-level shared-memory PCIe spillover** (NVIDIA WDDM driver allows VRAM overcommit, swap to system RAM via PCIe DMA at ~10x latency penalty). Linux/WSL2 nvidia driver does NOT provide an equivalent fallback — vllm sees only the 6GB physical limit and refuses to allocate.
+The Phase 1 Windows transformers 4k PASS (peak 10.8GB on a 6GB GPU) likely benefits from **Windows kernel-level shared-memory PCIe spillover** (NVIDIA WDDM driver allows VRAM overcommit via PCIe DMA to system RAM at ~10x latency penalty). vllm in WSL2 sees only the 6GB physical limit and refuses to allocate. This is a plausible primary causal hypothesis but is **not yet experimentally isolated** — see "Alternative hypotheses + unmeasured factors" below.
 
-**Counterintuitive consequence**: vllm's "more efficient" PagedAttention is irrelevant on this hardware tier — neither vllm nor transformers without OS spillover can fit the model. The literal enabler of the 4k cell was the Windows OS, not the inference engine.
+**Tier downgrade note (2026-05-12 post-audit)**: this ADR originally framed the finding as ★★★★ proven causal. Honest re-classification after self-audit is **★★ hypothesis** — the correlation is real (Win 4k PASS / Linux 4k OOM on identical hardware with similar quant config), but the causal mechanism is not yet falsifiable from this dataset alone. The portfolio publishes the downgrade itself as evidence of D9-CalibratedHonesty in practice; promoting back to ★★★ requires the falsification path enumerated below.
 
-**Decision**: Phase 2b → **NEGATIVE RESULT**. The 4k Windows transformers ceiling stands. WSL2 vllm path is documented as literal infeasible at this hardware tier and removed from Phase 2 deliverable scope. The honest portfolio finding is: **on 6GB VRAM consumer laptop, Windows OS shared-memory fallback is structurally necessary for 7B-parameter int4 inference; vllm/Linux strictness disqualifies this hardware**.
+## Alternative hypotheses + unmeasured factors (literal honest, post-audit)
+
+Three hypotheses are consistent with the observed Win-PASS / Linux-OOM split. The portfolio publishes all three rather than picking one as proven:
+
+| # | Hypothesis | Evidence for | Unmeasured |
+|---|---|---|---|
+| H1 | Windows WDDM shared-memory PCIe spillover absorbs the gap between 6GB physical and 10.8GB peak; Linux nvidia driver has no equivalent fallback | Peak VRAM 10.8GB literal measured > 6GB physical (only possible via spillover or measurement instrument quirk); vllm OOM log explicitly says "0 cuda blocks" with weights alone at 5.43GB | System RAM consumption during Win run not profiled; TCC vs WDDM driver comparison not run |
+| H2 | vllm's PagedAttention REQUIRES upfront contiguous KV-cache block pool allocation (design choice). transformers + bitsandbytes does on-demand allocation per forward pass, letting fragmented spillover absorb peaks | vllm log: "the rest of the memory reserved for KV Cache is -0.94GiB" → vllm refuses because pre-allocation budget is negative, not because runtime allocation fails | transformers in TCC-mode (strict-VRAM) not literal tested — if it ALSO OOMs at 4k, that would weight toward H1; if it PASSes, H2 takes the lead |
+| H3 | vllm's `quantization="bitsandbytes"` config path differs from transformers `BitsAndBytesConfig(quant_type="nf4")` — vllm may use a different dequantization buffer layout or skip double-quant, inflating activation memory | Implementation paths are independent codepaths in the bnb library; vllm activation peak was 1.42GB, higher than expected for 4k context | GGUF-based comparison (which would unify quant format) not run; vllm bnb internal config not introspected |
+
+**Best current estimate (★★)**: a combination of H1 + H2 (the WDDM fallback enables transformers' on-demand allocation pattern; vllm's pre-allocation design is fundamentally incompatible with overcommit). H3 may contribute a secondary effect. Picking one as proven without the experiments below would violate D9-CalibratedHonesty.
+
+**Falsification path** (Phase 2b/3 candidate work, all zero-CC):
+1. Run Windows transformers with `device_map="auto"` + explicit `max_memory={0: "5.5GB"}` cap to force pure-VRAM mode → if OOM at 4k, H1 confirmed; if PASS, H2 takes the lead
+2. Try vllm 0.7.3 with `cpu_offload_gb=5` to test if vllm CAN spillover when literal instructed → if PASS, vllm pre-allocation rigidity is the literal blocker (H2)
+3. Side-by-side AWQ or GGUF quant load in vllm to compare against bnb path → if comparable memory profile, H3 ruled out
+4. Profile system RAM (via `Get-Counter '\Memory\Available MBytes'` during Win 4k inference) → spike during inference = H1 evidence
+
+**Decision**: Phase 2b → **literal observation: vllm OOM at 4k on this hardware**, with the **causal mechanism not yet experimentally isolated**. The 4k Windows transformers ceiling stands as a portfolio cell, but the causal story is honestly downgraded to ★★ until the falsification experiments above are run. This is itself a portfolio signal: "engineer who runs the experiment, reports the observation, and resists overclaiming the cause".
 
 **Sources (D8)**:
 - artifacts/wsl_vllm_4000.json (literal status=OOM evidence)

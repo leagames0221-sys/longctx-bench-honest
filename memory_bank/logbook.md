@@ -148,3 +148,31 @@
 - GitHub Models token 取得 (read:packages scope、 CC 不要)、 .env (.gitignore 済) に literal 保存
 - baseline 128k RULER subset 走行 (1 task = niah_single_1 等)、 公式 RULER reference 数値範囲内一致 verify
 - JSON evidence → `artifacts/baseline_128k.json` literal 保存、 logbook に summary append
+
+---
+
+## 2026-05-11 — Phase 1 install layer (Windows host portion): HF DL complete + uv sync + pip-audit (session: portfolio-init)
+
+**作業 (literal 実測値で 全項 GREEN)**:
+- **HF DL completed**: `hf download Qwen/Qwen2.5-7B-Instruct-1M --cache-dir D:\hf_cache\hub` → 12:16 duration、 14.22 GB literal 取得、 snapshot path: `D:\hf_cache\hub\models--Qwen--Qwen2.5-7B-Instruct-1M\snapshots\e28526f7bb80e2a9c8af03b831a9af3812f18fba`
+- `uv sync --extra dev` (UV_PROJECT_ENVIRONMENT=D:\venvs\longctx-bench-honest) → exit 0、 全 deps install:
+  - torch 2.11.0 + transformers 5.8.0 + safetensors 0.7.0 + tokenizers 0.22.2 + huggingface-hub + datasets + openai (GitHub Models 用) + matplotlib + seaborn + pandas + numpy + accelerate + 等
+  - vllm は `platform_system != 'Windows'` marker で literal 除外 = Windows host で uv sync 通過 OK、 vllm 必要時は WSL2 path (ADR-005 起草対象)
+- `uv run pip-audit --strict` → exit 0、 **"No known vulnerabilities found"** ★★★ (supply chain defense literal verified、 torch + transformers + 全 transitive deps clean)
+- `uv.lock` 4909 行 生成 (D-NPM-3GUARD pip equivalent literal lockfile pin)
+
+**重要 finding**:
+- Windows host で transformers 5.8.0 + safetensors + huggingface-hub が動くことが verified = **vllm なしでも Qwen 2.5-1M モデル load + 推論可能** (transformers 経由、 vllm より遅いが host で完結)
+- → Phase 1 baseline で **Windows host で transformers 経由 128k 推論** を試行する path が literal 可能、 WSL2 vllm install を Phase 2 まで literal 遅延可能
+- ただし frontier 1M 真稼働は vllm + WSL2 が standard、 ADR-005 で literal 比較記録
+
+**error**:
+- 当初 `huggingface-cli download` で deprecation fail (exit 1) → `hf download` new CLI に切替成功 (logbook 前 entry 記載済)
+
+**進捗**: Windows host portion 全 GREEN。 残 = WSL2 vllm install (Phase 2 移行で OK)、 GitHub Models token、 baseline 走行。
+
+**申し送り (次 session)**:
+- uv.lock commit + push、 drift-check 緑保持
+- transformers 経由 sample inference 走行: `uv run python -c "from transformers import AutoModelForCausalLM, AutoTokenizer; ..."` で Qwen 2.5-1M load 確認 (128k context 程度から start)
+- baseline 128k RULER subset 走行 (single niah task)、 JSON evidence 出力
+- WSL2 vllm install は frontier 1M で必要時のみ Phase 2 内で execute、 ADR-005 で 「Windows host transformers vs WSL2 vllm の trade-off」 を literal 記録

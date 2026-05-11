@@ -1,0 +1,61 @@
+# Secrets (D2-Security)
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+credentials.json
+secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# HuggingFace cache (15GB+ model weights, do not commit)
+.cache/huggingface/
+models/
+*.safetensors
+*.gguf
+*.bin
+
+# Dataset cache (regenerable from public sources)
+datasets/
+*.parquet
+*.jsonl.gz
+
+# Eval artifacts (regenerable)
+artifacts/
+heatmaps/
+*.png.tmp
+
+# vllm runtime
+.vllm_cache/
+
+# Video (LFS preferred for large files, .mp4 src tracked separately)
+*.mp4.tmp
+
+# Claude Code local
+.claude/settings.local.json

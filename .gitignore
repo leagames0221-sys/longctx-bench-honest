@@ -59,3 +59,6 @@ heatmaps/
 
 # Claude Code local
 .claude/settings.local.json
+.claude/*.heartbeat
+.claude/*.jsonl
+.claude/alerts/

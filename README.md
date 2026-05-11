@@ -50,7 +50,9 @@ The portfolio thesis: in 2026-05, anyone can claim "I ran a 1M-context model." F
 
 **Phase 1 partial (2026-05-12)** — Install layer GREEN (CUDA torch 2.5.1+cu124 + bitsandbytes 0.49.2 int4 NF4 + transformers 5.8.0). Qwen 1M weight (14.22GB) DL'd to D:\hf_cache. **Single-needle NIAH baseline literal ran on consumer hardware (RTX 3050 Laptop 6GB VRAM)**: 4k context PASS / 5k+ OOM. See [Honest results](#honest-results-phase-1-partial-evidence) and [decisionLog ADR-007](memory_bank/decisionLog.md) for the literal VRAM ceiling characterization.
 
-**Phase 2 (next)** — Cloud-side measurement (GitHub Models GPT-5 / Claude Sonnet / Llama 3.3) at matched 4k context for direct local-vs-frontier comparison. Local Qwen 1M's full 1M-context potential requires multi-GPU or 24GB+ VRAM workstation — that gap is now sourced evidence, not a hypothesis.
+**Phase 2a (2026-05-12)** — Cloud comparison via GitHub Models free tier (zero credit card, gh OAuth only). 4 model attempts at matched 4k context: **gpt-4.1-mini PASS (8.54s)**, **llama-3.3-70b-instruct PASS (5.17s)** — both ~30-50x faster than local Qwen 4k. **gpt-5 literal UNAVAILABLE on free tier** (catalog says "available" but inference returns `unavailable_model`). **gpt-5 + deepseek-v3 = hard 4000-token request cap** documented per literal API error. See [Cloud free-tier honest map](#cloud-free-tier-honest-map-phase-2a-evidence) and [decisionLog ADR-008](memory_bank/decisionLog.md). Anthropic Claude **not present in GitHub Models catalog** at all.
+
+**Phase 2b (next)** — WSL2 + vllm PagedAttention literal install path test; check if it extends 6GB-VRAM ceiling from 4k toward 8-16k tokens. Phase 3 = craftstack 2-repo unification page.
 
 ## Verified state (drift-checked by CI)
 
@@ -70,18 +72,21 @@ The portfolio thesis: in 2026-05, anyone can claim "I ran a 1M-context model." F
 
 Phase 1 partial result populates the local 4k cell with literal JSON evidence. Larger context cells for the local column carry `OOM @ 6GB VRAM` markers backed by literal failed-run JSON evidence in `artifacts/`. Cloud columns populate in Phase 2.
 
-| Benchmark | Qwen2.5-7B-1M (local, int4 NF4) | GPT-5 (GitHub Models) | Claude Sonnet (GitHub Models) | Llama 3.3 (GitHub Models) |
-|---|---|---|---|---|
-| NIAH single needle @ 4k | **PASS** (252s inference, peak 10.8GB via Win shared-mem) — [evidence](artifacts/baseline_4000.json) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
-| NIAH single needle @ 5k | **OOM** (alloc 2.46GB on 11.18GB-used GPU) — [evidence](artifacts/baseline_5000.json) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
-| NIAH single needle @ 6k | **OOM** (alloc 3.57GB on 9.35GB-used GPU) — [evidence](artifacts/baseline_6000.json) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
-| NIAH single needle @ 8k | **OOM** (alloc 6.43GB single block > 6GB GPU) — [evidence](artifacts/baseline_8000.json) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
-| RULER (13-task avg) | requires ≥16k context per task — **infeasible on 6GB VRAM** (see ceiling above) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
-| LongBench v2 (acc) | typical task 32k-128k — **infeasible on 6GB VRAM** | pending Phase 2 | pending Phase 2 | pending Phase 2 |
-| NIAH 128k+ heatmap | **infeasible on 6GB VRAM** (would need 24GB+ or WSL2+vllm tensor-parallel) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
-| Inference wall-time @ 4k | 252s (int4 NF4 + Win shared-mem spillover) | pending Phase 2 | pending Phase 2 | pending Phase 2 |
-| Cost per measurement run | electricity only (~¥1) | free-tier (8000 token request cap) | free-tier (8000 token request cap) | free-tier (8000 token request cap) |
-| Credit card required | no | no (GitHub token only) | no (GitHub token only) | no (GitHub token only) |
+> **Note on cloud model selection** (literal honest finding): the original Phase 0 plan referenced "GPT-5 / Claude Sonnet / Llama 3.3". The 2026-05-12 Phase 2a literal probe of the GitHub Models catalog API found: **Anthropic Claude is NOT present in the catalog at all** (zero CC + GitHub Models = no Claude access), and **gpt-5 returns `unavailable_model` on this free-tier account** (catalog-listed but inference-unavailable). The table substitutes 4 actually-reachable models for honest comparison.
+
+| Benchmark | Qwen2.5-7B-1M (local, int4 NF4) | gpt-4.1-mini (GitHub Models) | llama-3.3-70b-instruct (GitHub Models) | deepseek-v3-0324 (GitHub Models) | gpt-5 (GitHub Models) |
+|---|---|---|---|---|---|
+| NIAH single needle @ 2k | (not run — local 4k cell is primary) | (not run) | (not run) | **PASS 1.72s** — [evidence](artifacts/cloud_deepseek-deepseek-v3-0324_2000.json) | **UNAVAILABLE** (model literal not accessible on free tier) — [evidence](artifacts/cloud_openai-gpt-5_2000.json) |
+| NIAH single needle @ 4k | **PASS** (252s, peak 10.8GB via Win shared-mem) — [evidence](artifacts/baseline_4000.json) | **PASS 8.54s** (prompt=3723 tok) — [evidence](artifacts/cloud_openai-gpt-4-1-mini_4000.json) | **PASS 5.17s** (prompt=3856 tok) — [evidence](artifacts/cloud_meta-llama-3-3-70b-instruct_4000.json) | **TOKEN_LIMIT** (free-tier cap=4000) — [evidence](artifacts/cloud_deepseek-deepseek-v3-0324_4000.json) | **TOKEN_LIMIT** (free-tier cap=4000) — [evidence](artifacts/cloud_openai-gpt-5_4000.json) |
+| NIAH single needle @ 5k | **OOM** (alloc 2.46GB on 11.18GB-used GPU) — [evidence](artifacts/baseline_5000.json) | likely PASS (catalog: 1M input) | likely PASS (catalog: 128k input) | **TOKEN_LIMIT predicted** (4000 cap) | **TOKEN_LIMIT predicted** (4000 cap) |
+| NIAH single needle @ 6k | **OOM** (alloc 3.57GB on 9.35GB-used GPU) — [evidence](artifacts/baseline_6000.json) | likely PASS | likely PASS | TOKEN_LIMIT predicted | TOKEN_LIMIT predicted |
+| NIAH single needle @ 8k | **OOM** (alloc 6.43GB single block > 6GB GPU) — [evidence](artifacts/baseline_8000.json) | likely PASS | likely PASS | TOKEN_LIMIT predicted | TOKEN_LIMIT predicted |
+| RULER (13-task avg) | requires ≥16k context per task — **infeasible on 6GB VRAM** | feasible (1M catalog cap) — Phase 2b/3 candidate | feasible (128k catalog cap) — Phase 2b/3 candidate | infeasible (4000 free-tier cap) | infeasible (free-tier unavailable) |
+| LongBench v2 (acc) | typical task 32k-128k — **infeasible on 6GB VRAM** | feasible — Phase 2b/3 candidate | feasible at 128k cap | infeasible (4000 free-tier cap) | infeasible (free-tier unavailable) |
+| NIAH 128k+ heatmap | **infeasible on 6GB VRAM** (would need 24GB+ or WSL2+vllm tensor-parallel) | feasible (1M catalog) — would burn free-tier quota | feasible at 128k | infeasible (4000 free-tier cap) | infeasible (free-tier unavailable) |
+| Inference wall-time @ 4k | 252s (int4 NF4 + Win shared-mem spillover) | **8.54s (~30x faster than local)** | **5.17s (~50x faster than local)** | 1.72s @ 2k cell | n/a (unavailable) |
+| Cost per measurement run | electricity only (~¥1) | free-tier, no CC | free-tier, no CC | free-tier, no CC | n/a (model unavailable) |
+| Credit card required | no | no (GitHub token only) | no (GitHub token only) | no (GitHub token only) | no (but model still inaccessible) |
 
 **Hardware constraint literally hit**: at int4 NF4 quantization, model weights occupy ~4GB of the 6GB VRAM; inference activations + KV cache exceed available headroom beyond 4k input tokens. Cumulative VRAM demand at 4k = 10.8GB peak (rescued by Windows shared-memory spillover via PCIe, ~10x slower than pure VRAM). At 5k+, a single allocation in the attention forward pass requires more contiguous VRAM than physically available. This is the literal *constraint-optimized AI engineering* boundary on this hardware tier.
 
@@ -121,6 +126,24 @@ This is the **literal `constraint-optimized AI engineering` boundary on RTX 3050
 ### Where it doesn't (and a paid frontier is the literal honest answer)
 
 Full 1M-context honest measurement requires either (a) a 24GB+ VRAM workstation GPU (not consumer-laptop tier) or (b) a paid frontier API (GPT-5 1M / Claude 4.7 1M / Gemini 2.0 2M) — both fall outside `consumer laptop` and `zero credit card` constraints respectively. This portfolio is the literal honest map of what's measurable in the intersection of both constraints; the 4k ceiling is the answer, not a failure.
+
+## Cloud free-tier honest map (Phase 2a evidence)
+
+Phase 2a literal probe of GitHub Models free tier (zero credit card, gh OAuth token only, 2026-05-12) produced the literal accessibility matrix:
+
+| Model | Catalog claim | Free-tier reality |
+|---|---|---|
+| openai/gpt-4.1-mini | 1M input / 32k output / "low" tier | ✅ **PASS @ 4k** (8.54s, prompt=3723 tok) — no hard cap encountered at 4k |
+| meta/llama-3.3-70b-instruct | 128k input / 4k output / "high" tier | ✅ **PASS @ 4k** (5.17s, prompt=3856 tok) — no hard cap encountered at 4k |
+| deepseek/deepseek-v3-0324 | 128k input / 4k output / "high" tier | ✅ PASS @ 2k (1.72s) / ❌ **TOKEN_LIMIT @ 4k** (literal error: "Max size: 4000 tokens") |
+| openai/gpt-5 | 200k input / 100k output / "custom" tier | ❌ **UNAVAILABLE @ 2k** (literal error: "Unavailable model: gpt-5") — catalog-listed but inference-inaccessible |
+| anthropic/claude-* | — | ❌ **NOT IN CATALOG** — zero Anthropic models present in GitHub Models marketplace |
+
+**Honest portfolio finding ★★★★** (the literal cloud-side counterpart to the local 4k VRAM ceiling):
+
+> Under `zero credit card`, the literal reachable cloud frontier at 4k context is **gpt-4.1-mini + llama-3.3-70b-instruct**. Both are 30-50x faster than local Qwen 4k. **gpt-5, Claude, Gemini, and any 1M-context cloud test at scale all require either a paid API or a higher GitHub Models tier — outside the constraint set this portfolio commits to.**
+
+Citation chain for the literal API responses: [decisionLog ADR-008](memory_bank/decisionLog.md). Reproducible via `examples/cloud_niah.py --model <id> --context-tokens <N>` with a `gh auth token` in the `GITHUB_TOKEN` environment variable.
 
 ## Quickstart
 

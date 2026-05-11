@@ -174,3 +174,46 @@ This is NOT a design-phase compromise (D-NO-COMPROMISE-IN-DESIGN). It is an impl
 - ⚠️ The 4k PASS uses Windows shared-mem PCIe spillover (peak 10.8GB) — strictly speaking already past the "pure VRAM" boundary; honest classification is "consumer-tier feasibility with OS-level memory management assist"
 
 **Verify**: Phase 1 baseline JSON evidence (4 files in artifacts/) literal committed, drift-CI extended to verify their presence + JSON schema fields, README cost-tier table cell values mirror JSON status fields.
+
+---
+
+## ADR-008 (2026-05-12): GitHub Models free-tier literal accessibility map — substitute model selection
+
+**Context (constraint: zero CC / consumer laptop / public source / drift-CI enforced)**: Phase 0 plan referenced "GPT-5 / Claude Sonnet / Llama 3.3" as the cloud comparison set. Phase 2a session (2026-05-12) literal probed the GitHub Models catalog API (`https://models.github.ai/catalog/models`) + inference endpoint (`https://models.github.ai/inference`).
+
+**Literal probe results**:
+
+1. **Anthropic Claude: NOT IN CATALOG** — zero Anthropic models present in GitHub Models marketplace (verified by full catalog enumeration). Plan's "Claude Sonnet" cell is literal unreachable under zero-CC constraint.
+2. **openai/gpt-5: catalog-listed (200k input / 100k output / "custom" tier) but inference returns `unavailable_model`** — even at 2000 token request (well within 4000 token cap discovered separately), API responds with `BadRequestError: Unavailable model: gpt-5`. Free-tier access is literal blocked.
+3. **openai/gpt-4.1-mini (1M / low tier)**: PASS @ 4000 token request, prompt_tokens=3723, completion=4 tokens, latency 8.54s.
+4. **meta/llama-3.3-70b-instruct (128k / high tier)**: PASS @ 4000 token request, prompt_tokens=3856, completion=4 tokens, latency 5.17s.
+5. **deepseek/deepseek-v3-0324 (128k / high tier)**: PASS @ 2000 token request (1.72s); **TOKEN_LIMIT @ 4000** with literal error "Max size: 4000 tokens" — the 128k catalog cap and the free-tier request cap are different numbers.
+
+**Decision**: substitute the cloud comparison set to literal-reachable models:
+
+| Plan-original | Phase 2a replacement | reason |
+|---|---|---|
+| GPT-5 | gpt-4.1-mini (also OpenAI, 1M context) | gpt-5 inference returns `unavailable_model` on free tier |
+| Claude Sonnet | (no replacement, document gap honestly) | Anthropic literal absent from GitHub Models catalog |
+| Llama 3.3 | meta/llama-3.3-70b-instruct | matches plan |
+| — (new addition) | deepseek/deepseek-v3-0324 | alt-vendor diversity; demonstrates the literal "free-tier cap below catalog cap" pattern |
+
+**Free-tier cap pattern (★★ tier, n=4 models)**:
+- "low" tier OpenAI models: free-tier cap ≥ 4000 input tokens (gpt-4.1-mini PASS)
+- "high" tier Meta models: free-tier cap ≥ 4000 input tokens (llama-3.3-70b PASS)
+- "high" tier DeepSeek: free-tier cap = **4000 input tokens hard** (literal error at 4001+)
+- "custom" tier OpenAI gpt-5: free-tier blocked at availability layer (UNAVAILABLE before token cap fires)
+
+**Sources (D8)**:
+- [GitHub Models catalog API enumeration](https://models.github.ai/catalog/models) — accessed 2026-05-12 via curl + gh auth token
+- artifacts/cloud_*.json — 6 literal JSON evidence files for the 6 attempts above
+- API error payload examples: "tokens_limit_reached / Max size: 4000 tokens" (TOKEN_LIMIT), "unavailable_model / Unavailable model: gpt-5" (UNAVAILABLE_MODEL)
+
+**Consequences**:
+- ✅ Cost-tier table populated with 4 cloud cells (2 PASS, 2 TOKEN_LIMIT, 1 UNAVAILABLE) + 1 plan-mismatch row (Claude absent from catalog)
+- ✅ Portfolio thesis literal evidenced from cloud side: **the reachable zero-CC frontier at 4k is gpt-4.1-mini + llama-3.3-70b, both 30-50x faster than local 4k**
+- ✅ Recruiter signal: "engineer who maps both local VRAM ceilings AND cloud accessibility tiers honestly, with literal API error citations"
+- ⚠️ Some "catalog max input" numbers are aspirational under free tier — the literal usable cap is lower (4000 tokens for gpt-5 / deepseek per probe)
+- ⚠️ gpt-5 may become accessible if the user upgrades to a paid GitHub Models / Azure OpenAI tier — but that violates `zero credit card` constraint and is out of scope
+
+**Verify**: drift-CI extended with cloud_*.json evidence + status + README link verification. README cost-tier table cells mirror JSON status fields literal.

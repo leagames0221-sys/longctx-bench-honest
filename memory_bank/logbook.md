@@ -225,3 +225,52 @@
 - WSL2 + vllm PagedAttention path は Phase 2 後半 candidate (ceiling 8-16k へ literal push 可否 verify)
 - craftstack 統合 (Phase 3) は cloud cells populate 後
 
+
+---
+
+## 2026-05-12 — Phase 2a: Cloud comparison via GitHub Models free tier (session: portfolio-continue)
+
+**作業**:
+- GitHub Models catalog API literal probe (`https://models.github.ai/catalog/models`) — enumerated full model list
+- Wrote `examples/cloud_niah.py` — OpenAI SDK + GitHub Models endpoint, same NIAH single-needle task as baseline_niah.py
+- Ran 6 cloud cells: 4 models × {2k, 4k} subset, captured literal API responses to JSON evidence
+
+**実測値 (artifacts/cloud_*.json all committed)**:
+
+| Model | 2k | 4k |
+|---|---|---|
+| openai/gpt-4.1-mini | (not run, 4k is primary) | **PASS 8.54s** (prompt=3723 tok) |
+| meta/llama-3.3-70b-instruct | (not run, 4k is primary) | **PASS 5.17s** (prompt=3856 tok) |
+| openai/gpt-5 | **UNAVAILABLE** ("Unavailable model: gpt-5") | **TOKEN_LIMIT** ("Max size: 4000 tokens") |
+| deepseek/deepseek-v3-0324 | **PASS 1.72s** (prompt=1832 tok) | **TOKEN_LIMIT** ("Max size: 4000 tokens") |
+
+**Honest findings ★★★★**:
+1. **Anthropic Claude is NOT in GitHub Models catalog** — full enumeration shows zero Anthropic models. Plan-original "Claude Sonnet" cell literal unreachable under zero-CC.
+2. **gpt-5 returns `unavailable_model` even at 2k tokens** — catalog-listed but inference-blocked on free tier (likely needs paid Azure OpenAI / GitHub Enterprise tier)
+3. **Free-tier token cap differs per model tier**: gpt-4.1-mini ("low") + llama-3.3-70b ("high") = ≥4000 tokens passable; gpt-5 ("custom") + deepseek-v3 ("high") = literal 4000 token hard cap (error: tokens_limit_reached / Max size: 4000 tokens)
+4. **Cloud is 30-50x faster than local Qwen 4k**: gpt-4.1-mini 8.54s, llama-3.3-70b 5.17s, deepseek-v3 1.72s (at 2k) vs Qwen 4k local 251.89s
+
+**Documentation updates (D3-DocSync)**:
+- README Status: Phase 2a section added with substituted cloud model selection rationale
+- README Cost-tier table: 5-column layout (Qwen local + 4 cloud), 9 row literal cells filled with PASS/TOKEN_LIMIT/UNAVAILABLE + JSON URL citations
+- README new section: "Cloud free-tier honest map (Phase 2a evidence)" with full accessibility matrix
+- decisionLog ADR-008: model selection substitution + literal API response citation chain
+- drift-CI: 3 new step (cloud_niah.py exists + 6 cloud JSON evidence + 5 status field verify + README/ADR-008 section verify)
+
+**error**:
+- gpt-5 @ 4k: TOKEN_LIMIT (expected, prompt 3851 + chat template > 4000)
+- gpt-5 @ 2k: UNAVAILABLE_MODEL (literal, even within token cap — model is inaccessible on free tier)
+- deepseek-v3 @ 4k: TOKEN_LIMIT (literal hard 4000 cap)
+- Initial plan referenced "Claude Sonnet" — literal absent from catalog, no fix possible without paid Anthropic API (out of scope)
+
+**進捗**: Phase 2a 完遂、 cost-tier table 5 column × 9 row literal populated, drift-CI extended, commit + push 待ち
+
+**申し送り (Phase 2b = WSL2 vllm experiment)**:
+- WSL2 Ubuntu 既 install 済 (前 session evidence: huggingface_hub literal callable from WSL2 env)
+- vllm PagedAttention は Linux 専用、 WSL2 install path で 6GB VRAM ceiling を 4k → 8-16k に literal 押し上げ可能性 ★ (★★ tier confidence、 PagedAttention KV cache 効率 vs transformers bitsandbytes 差分)
+- 試行 → 結果 (PASS or FAIL) を ADR-009 として literal 記録、 cost-tier table の 8k+ cell 更新 候補
+
+**申し送り (Phase 3 = craftstack 統合)**:
+- craftstack repo (leagames0221-sys/craftstack) 確認 + 上位 fold に 2 repo link + thesis 1 行
+- cost-tier summary 表 embed (本 repo + browser-agent-demo 双方 evidence URL)
+

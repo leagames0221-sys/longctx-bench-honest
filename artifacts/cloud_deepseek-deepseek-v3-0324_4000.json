@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "task": "niah_single",
+  "provider": "github_models",
+  "endpoint": "https://models.github.ai/inference",
+  "model": "deepseek/deepseek-v3-0324",
+  "context_tokens_target": 4000,
+  "depth_pct": 50.0,
+  "seed": 42,
+  "needle_value": "2867825",
+  "haystack_source": "PaulGrahamEssays (49 essays, repeated as needed)",
+  "tokenizer_used_for_budget": "Qwen/Qwen2.5-7B-Instruct-1M (approximation, cloud may differ)",
+  "context_tokens_approx": 3851,
+  "status": "TOKEN_LIMIT",
+  "error": "APIStatusError: Error code: 413 - {'error': {'code': 'tokens_limit_reached', 'message': 'Request body too large for deepseek-v3-0324 model. Max size: 4000 tokens.', 'details': 'Request body too large for deepseek-v3-0324 model. Max size: 4000 tokens.'}}"
+}

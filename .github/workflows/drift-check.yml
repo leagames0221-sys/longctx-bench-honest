@@ -142,5 +142,33 @@ jobs:
           grep -q "ADR-007" memory_bank/decisionLog.md || { echo "DRIFT: decisionLog missing ADR-007"; exit 1; }
           grep -q "6GB VRAM" memory_bank/decisionLog.md || { echo "DRIFT: ADR-007 missing 6GB VRAM ceiling characterization"; exit 1; }
 
+      - name: Verify Phase 2a cloud NIAH runner exists
+        run: |
+          test -f examples/cloud_niah.py || { echo "DRIFT: examples/cloud_niah.py missing (Phase 2a deliverable)"; exit 1; }
+          grep -q "models.github.ai/inference" examples/cloud_niah.py || { echo "DRIFT: cloud_niah.py missing GitHub Models endpoint"; exit 1; }
+
+      - name: Verify Phase 2a cloud JSON evidence cells
+        run: |
+          # 2 PASS cells, 2 TOKEN_LIMIT cells, 1 UNAVAILABLE_MODEL cell, 1 DeepSeek 2k PASS cell
+          test -f artifacts/cloud_openai-gpt-4-1-mini_4000.json || { echo "DRIFT: gpt-4.1-mini 4k evidence missing"; exit 1; }
+          test -f artifacts/cloud_meta-llama-3-3-70b-instruct_4000.json || { echo "DRIFT: llama-3.3-70b 4k evidence missing"; exit 1; }
+          test -f artifacts/cloud_openai-gpt-5_4000.json || { echo "DRIFT: gpt-5 4k evidence missing"; exit 1; }
+          test -f artifacts/cloud_openai-gpt-5_2000.json || { echo "DRIFT: gpt-5 2k evidence missing"; exit 1; }
+          test -f artifacts/cloud_deepseek-deepseek-v3-0324_4000.json || { echo "DRIFT: deepseek-v3 4k evidence missing"; exit 1; }
+          test -f artifacts/cloud_deepseek-deepseek-v3-0324_2000.json || { echo "DRIFT: deepseek-v3 2k evidence missing"; exit 1; }
+          # Status field literal verification (matches README cost-tier claims)
+          grep -q '"status": "PASS"' artifacts/cloud_openai-gpt-4-1-mini_4000.json || { echo "DRIFT: gpt-4.1-mini 4k != PASS"; exit 1; }
+          grep -q '"status": "PASS"' artifacts/cloud_meta-llama-3-3-70b-instruct_4000.json || { echo "DRIFT: llama-3.3-70b 4k != PASS"; exit 1; }
+          grep -q '"status": "PASS"' artifacts/cloud_deepseek-deepseek-v3-0324_2000.json || { echo "DRIFT: deepseek-v3 2k != PASS"; exit 1; }
+          grep -q '"status": "TOKEN_LIMIT"' artifacts/cloud_openai-gpt-5_4000.json || { echo "DRIFT: gpt-5 4k != TOKEN_LIMIT"; exit 1; }
+          grep -q '"status": "TOKEN_LIMIT"' artifacts/cloud_deepseek-deepseek-v3-0324_4000.json || { echo "DRIFT: deepseek-v3 4k != TOKEN_LIMIT"; exit 1; }
+
+      - name: Verify Cloud free-tier honest map section + ADR-008
+        run: |
+          grep -q "Cloud free-tier honest map" README.md || { echo "DRIFT: README missing Cloud free-tier honest map section"; exit 1; }
+          grep -q "ADR-008" memory_bank/decisionLog.md || { echo "DRIFT: decisionLog missing ADR-008"; exit 1; }
+          grep -q "Anthropic" memory_bank/decisionLog.md || { echo "DRIFT: ADR-008 missing Anthropic-absent finding"; exit 1; }
+          grep -q "unavailable_model" memory_bank/decisionLog.md || { echo "DRIFT: ADR-008 missing gpt-5 unavailable finding"; exit 1; }
+
       - name: Summary
         run: echo "All drift checks passed."

@@ -2,56 +2,63 @@
 
 ## Current phase
 
-**Phase 1 + Phase 2a + Phase 2b COMPLETE (2026-05-12). Phase 3 PR open.** Full constraint-optimized AI engineering portfolio thesis literal evidenced from 3 angles: Windows local 6GB VRAM ceiling, GitHub Models free-tier cloud accessibility map, and WSL2 vllm negative result. craftstack cross-repo integration PR [#70](https://github.com/leagames0221-sys/craftstack/pull/70) open pending CI green + user self-merge.
+**Phase 1 + 2a + 2b + 3 + post-audit fix COMPLETE (2026-05-12).** Portfolio is at ★★★ tier (post-self-audit + 4 fix). craftstack PR #70 literal merged + main HEAD has "Related portfolio work" cross-link. Social distribution drafts ready in `memory_bank/social_drafts.md`. Next session = distribution (r/LocalLLaMA + HN post) is the highest-ROI move; new portfolio breadth (#5 / #6) is lower priority until distribution generates signal.
 
-## Current focus
+## Aggregate deliverable state (post-audit, ★★★ tier)
 
-Session-end state. All major deliverables shipped. Awaiting:
-1. craftstack PR #70 CI green + user self-merge (status: 10+ checks running, Vercel + Next.js builds typically 10-15 min)
-2. (Optional, next session) r/LocalLLaMA + Hacker News post drafting after PR merged
-
-## Completed Phase summary (★★★ tier evidence)
-
-| Phase | Deliverable | Evidence |
+| # | Item | Evidence |
 |---|---|---|
-| 0 | Scaffold + drift CI installed | commit dc5480b initial push |
-| 1 partial | Windows transformers 4-cell scaling, 6GB VRAM ceiling characterized at 4k | 4 baseline_*.json + ADR-007 + commit bc9ae3d |
-| 2a | Cloud comparison via GitHub Models free tier, 4 model probe, 6 cells | 6 cloud_*.json + ADR-008 + commit 01c4bc1 |
-| 2b | WSL2 + vllm NEGATIVE RESULT — Linux/vllm cannot fit weights+activations on 6GB | wsl_vllm_4000.json + ADR-009 + commit e877718 |
-| 3 (open) | craftstack PR #70 integration | [PR link](https://github.com/leagames0221-sys/craftstack/pull/70) |
+| 1 | longctx-bench-honest main HEAD | [commit 46a5a8c](https://github.com/leagames0221-sys/longctx-bench-honest/commit/46a5a8c), drift-CI 22+ steps green |
+| 2 | 11 JSON evidence files | `artifacts/baseline_{4000,5000,6000,8000}.json` + `artifacts/cloud_*_{2000,4000}.json` (6 cloud) + `artifacts/wsl_vllm_4000.json` |
+| 3 | 3 runners | `examples/baseline_niah.py` (Win transformers) + `cloud_niah.py` (GitHub Models) + `wsl_vllm_niah.py` (WSL2 vllm) |
+| 4 | 3 ADRs | ADR-007 (6GB VRAM ceiling) + ADR-008 (cloud free-tier honest map) + ADR-009 (WSL2 vllm ★★ hypothesis + 3 alternatives + falsification path) |
+| 5 | README cost-tier table | 5-col × 10-row matrix with ✅/❌/⏳/⛔ icon legend + sample-size disclosure + cold-load footnote |
+| 6 | Honest results section | 4 subsections (holds up / constraint hits / engineering fix / paid frontier honest answer) |
+| 7 | Cloud free-tier honest map section | accessibility matrix: Claude absent / gpt-5 unavailable / 4000-token cap pattern |
+| 8 | pyproject.toml + uv.lock | exact version pinning (torch==2.5.1 / bitsandbytes==0.49.2 / vllm==0.7.3) matching JSON evidence literal — `uv sync` reproduces measurement environment |
+| 9 | drift-CI workflow | 22+ verify steps, all green on every push since Phase 0 |
+| 10 | craftstack PR #70 merged | "Related portfolio work" section live on craftstack main HEAD [commit 0b830b9](https://github.com/leagames0221-sys/craftstack/commit/0b830b9) |
+| 11 | Social distribution drafts | `memory_bank/social_drafts.md` — r/LocalLLaMA + HN post body + first comment, ready for user submit |
 
-## Aggregate counts (this PJ alone)
+## Post-audit fix history (self-correction signal)
 
-- **3 ADRs** (007, 008, 009) — all with citation chains
-- **11 JSON evidence files** in `artifacts/`
-- **3 runners**: baseline_niah.py / cloud_niah.py / wsl_vllm_niah.py
-- **5-column cost-tier table** populated with literal cells + JSON URL citations
-- **drift-CI 22+ steps** green on main HEAD ([commit 62e8818](https://github.com/leagames0221-sys/longctx-bench-honest/commit/62e8818))
+| Fix | Tier | Effect |
+|---|---|---|
+| #1 reproducibility | ★★★ | pyproject.toml drift fixed; `uv sync` now produces measurement-matching versions |
+| #2 ADR-009 honesty tier | ★★ | ★★★★ overclaim → ★★ hypothesis + 3 alternatives + falsification path |
+| #3 cost-tier visual icons | ★★ | ✅/❌/⏳/⛔ legend separates measured from predicted; sample-size + cold-load disclosed |
+| #7 memory bank drift | ★ | productContext + systemPatterns reflect actual Phase 2a/b delivery, not Phase 0 dream |
 
-## Cross-repo portfolio thesis (final form, ★★★★)
+## Next session candidates (D-SINGLE-ROUTE honest pick)
 
-> **Constraint-optimized AI engineering** under (zero credit card, consumer laptop, public source / OSS only, drift-CI enforced):
->
-> - **Local 6GB VRAM tier** — 4k context ceiling, rescued by Windows shared-mem PCIe spillover (ADR-007); Linux/vllm strict allocator fails (ADR-009)
-> - **Cloud zero-CC tier** — gpt-4.1-mini + llama-3.3-70b reachable at 4k (~30-50x faster than local); gpt-5 unavailable; Anthropic Claude absent; some models capped at 4000 tokens (ADR-008)
-> - **Cross-repo siblings**: craftstack (full-stack web $0/mo) + browser-agent-demo (5-layer defense-in-depth journey) + this repo (long-context measurement) = three domains, one thesis, all literal JSON / log evidence
+**Recommended single best path: Distribution before new building** ★★★
 
-## Next session candidates (Phase 4 — Optional)
+Rationale:
+- 3 portfolio repos at ★★★ tier with drift-CI + JSON evidence is already strong
+- Without distribution, no signal reaches recruiters / 受託先 → portfolio sits idle
+- r/LocalLLaMA + HN drafts already ready in `social_drafts.md` (5-min user click to submit)
+- Community feedback (good or bad) is the literal next data point — without it, more portfolio building is "designing in a vacuum"
+- After distribution generates signal, then decide: more breadth (portfolio #5/#6) vs more depth (multi-depth heatmap / falsification experiments)
 
-1. **r/LocalLLaMA post drafting** — title candidate: "Honest map of 6GB VRAM consumer-laptop long-context limits: 4k local ceiling, cloud free-tier disparity, and the counterintuitive WSL2 vllm failure"
-2. **Hacker News post drafting** — title candidate: "Show HN: constraint-optimized AI engineering portfolio with literal $0 + 11 JSON evidence cells + 3 ADRs"
-3. **Heatmap visualization** — NIAH multi-depth × context heatmap PNG for the 4k cell (single depth currently; extend to 0/25/50/75/100% depths if 4k headroom permits)
-4. **WebArena / OSWorld subset attempt** at 4k context using cloud cells (Phase 2a infrastructure already in place)
-5. **Lifecycle cleanup decision** — when next-session AI confirms stable state, D: footprint (~20GB) is safe to delete per README Lifecycle section
+**Path (next session, AI-assistable steps)**:
+1. User submits r/LocalLLaMA post (5 min, user click) → 24h to see comments / votes
+2. User submits HN Show HN (5 min, user click) → 4h to see front-page chance
+3. Next session: AI helps respond to comments + draft replies + extract signal from feedback
+4. After 1 week of signal: decide if portfolio expansion (#5/#6) is warranted or if existing 3 are saturating the recruiter funnel
+
+**Lower-priority alternatives (Phase 4 deep-work, after distribution generates signal)**:
+- ADR-009 falsification experiments (4 zero-CC steps to promote ★★ → ★★★ causal claim)
+- Multi-depth NIAH heatmap @ 4k (5 depths × 3 seeds ≈ 30 min, generates 1 PNG that's recruiter-eye-catching)
+- New portfolio repo #5/#6 (high effort, low marginal recruiter ROI until existing 3 saturate)
 
 ## Blockers
 
-なし。 craftstack PR #70 = user self-merge after CI green (technical only, no scope blocker).
+なし。 distribution は user の 5-min click が gating step、 AI 介入余地なし。 user タイミング (Tue-Thu US morning が HN/Reddit 最適) で submit 後、 次 session で feedback response 着手。
 
-## Out of scope (acknowledged limits)
+## Out of scope (acknowledged limits, ADR-citation 済)
 
-- 真の 1M context inference (consumer 6GB tier 物理不可、 ADR-007 + 009 literal evidenced)
-- paid API integration (zero CC 制約違反、 literal scope 外)
-- 8 GPU server / workstation 級 hardware (D-CONSUMER-HW 違反)
-- Anthropic Claude integration (literal absent from GitHub Models, requires paid Anthropic API)
-- gpt-5 access (literal blocked on free tier per ADR-008)
+- 真の 1M context inference (consumer 6GB tier 物理不可、 ADR-007 + 009)
+- paid API integration (zero CC 制約違反)
+- Anthropic Claude (GitHub Models catalog literal 不在、 ADR-008)
+- gpt-5 free-tier access (UNAVAILABLE、 ADR-008)
+- WSL2 11GB cleanup (user explicit "OK 実行して" 待ち、 portfolio 機能には literal 影響なし)

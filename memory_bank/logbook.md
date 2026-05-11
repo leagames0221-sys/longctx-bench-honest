@@ -365,3 +365,36 @@ Status: OOM at engine init (before any inference). Literal cause: int4 model wei
 - 0 credit card transactions, 0 paid API usage, 0 supercomputer / non-consumer hardware
 - All work literal reproducible from public sources
 
+
+---
+
+## 2026-05-12 — Post-audit fix + final session handoff (session: portfolio-continue, FINAL)
+
+**作業**:
+- Self-audit conducted at user request ("おかしい箇所が無いかを指摘して") with critical lens
+- Found 3 ★★+ drifts: pyproject.toml/uv.lock reproducibility broken, ADR-009 overclaim (★★★★ where ★★ honest), cost-tier predicted vs measured visually mixed
+- Implemented 4 fix (commit 46a5a8c): pyproject pin + cu124 source + ADR-009 honesty tier + cost-tier icon legend + memory bank drift cleanup + SETUP.md Step 6 rewrite
+- drift-CI 22+ steps GREEN post-audit
+- D drive cleanup executed earlier in session: 4.36GB (.ollama) + 14.22GB (hf_cache) + 5.28GB (D:/venvs) deleted; WSL2 11GB blocked by destructive command gate (user explicit "OK 実行して" needed)
+- Social distribution drafts (commit 416774b) ready in memory_bank/social_drafts.md
+- activeContext.md updated with final state + next session recommendation (Distribution before new building)
+
+**Final aggregate (session totals)**:
+- longctx-bench-honest: 8+ commits, 11 JSON evidence cells, 3 ADRs, 3 runners, 22+ drift-CI steps, ★★★ tier post-audit
+- craftstack: 1 PR opened + merged + branch deleted, "Related portfolio work" section live
+- Disk cleanup: ~24 GB freed from C: + D: (WSL2 11 GB pending user explicit OK)
+
+**Next session recommended single best path**: Distribution before new building.
+- User submits r/LocalLLaMA + HN posts (5-min clicks each, drafts ready)
+- Wait 24h - 1 week for community signal
+- Then decide: more depth (falsification experiments / heatmap) vs more breadth (new portfolio #5/#6)
+- AI cannot click submit buttons (越境禁止); user is gating step
+
+**申し送り (next session AI)**:
+- Read memory_bank/activeContext.md for full state
+- Read memory_bank/social_drafts.md for the literal submission text
+- If user has posted: help respond to community comments, draft replies, extract signal
+- If user hasn't posted: gently remind once, then propose Phase 4 deep work (falsification / heatmap)
+- DO NOT propose creating portfolio #5/#6 until distribution generates signal (avoiding "designing in a vacuum")
+- Cleanup WSL2 11 GB only after user explicit "OK 実行して" (destructive gate enforced)
+

@@ -69,3 +69,24 @@
 - overhaul commit + push 完了後の drift-check workflow が new claim 群 (4 model 名 + 3 benchmark 名 + repo 名 canon + cost-tier table 構造 + Phase declaration) を全件 green で verify することを実測
 - Phase 1 entry point: 3 prior art audit (RULER + LongBench / vllm + NIAH は既 clone) + LongBench v2 LICENSE 確認 + vllm install path 実測 (Win vs WSL2) + Qwen 1M DL + baseline 128k RULER subset
 - portfolio differentiator は **measurement honesty + cost transparency + drift discipline** の 3 軸、 Phase 2 で cost-tier table 16 cell 自動生成 + Honest results section literal 開示が core deliverable
+
+---
+
+## 2026-05-11 — Portfolio unifying thesis 確定 (session: portfolio-init)
+
+**作業**:
+- user 提案 「全 free 制約下で best」 を portfolio unifying thesis として literal 採用、 前 entry の 「3 differentiator (measurement honesty + cost transparency + drift discipline)」 を **1 つの thesis** に literal 統合
+- README 上位 fold に `## Selected under` section literal 追加 (4 constraint: zero CC / consumer laptop / public source / drift-CI enforced)
+- README に `## Why this is the literal best under the constraint set` section literal 追加 (6 row 選定 vs 却下 table、 Qwen3.6-27B 8 GPU 要件 / DeepSeek V4 / Gemma 4 / Anthropic API / OpenAI API / NIAH 単独 / llama.cpp / TGI 等を sourced reason で却下 explicit 化)
+- README 上部に 3 constraint badge (shields.io) 追加
+- portfolio category: **constraint-optimized AI engineering** に literal 確定 (browser-agent-demo と同 thesis)
+- drift-check workflow 拡張: Selected under section + 4 constraint 文字列 + portfolio category line + Why best section + Rejected alternatives column の literal 存在 verify (13 step → 15 step)
+
+**Thesis (literal 永続記録)**:
+> Constraint-optimized AI engineering — best possible AI systems under (1) zero credit card, (2) consumer laptop, (3) public source / OSS only, (4) drift-CI enforced。 cross-repo (browser-agent-demo + longctx-bench-honest) で unifying narrative。 採用 / 受託 共通の signal axis: 「制約下で最善を出す engineer」。 2 度の ADR 自己訂正 (Qwen2.5 repo hallucination / Qwen3.6-27B 8 GPU 制約) は本 thesis の literal evidence (= option-space audit の証跡)。
+
+**進捗**: thesis literal 確定 + drift-check 拡張完了見込、 commit + push + 再 verify 待ち
+
+**申し送り (次 session)**:
+- Phase 1 着手時、 全 ADR の Context section に `(constraint: zero CC / consumer laptop / public source / drift-CI)` を literal 明記、 thesis を ADR 単位でも literal 反映
+- craftstack 上位 fold は Phase 3 で同 thesis を hub message として配置 (2 repo + thesis 1 行)

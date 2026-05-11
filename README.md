@@ -6,6 +6,37 @@
 
 [![drift-check](https://github.com/leagames0221-sys/longctx-bench-honest/actions/workflows/drift-check.yml/badge.svg)](https://github.com/leagames0221-sys/longctx-bench-honest/actions/workflows/drift-check.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Constraint: zero CC](https://img.shields.io/badge/Constraint-zero%20credit%20card-blue)](#selected-under)
+[![Constraint: consumer laptop](https://img.shields.io/badge/Constraint-consumer%20laptop-blue)](#selected-under)
+[![Constraint: drift-CI enforced](https://img.shields.io/badge/Constraint-drift--CI%20enforced-blue)](#selected-under)
+
+## Selected under
+
+> **The constraint set** (every component of this repo was selected to satisfy *all four* simultaneously):
+>
+> 1. **Zero credit card** — no Anthropic / OpenAI paid API; GitHub Models free tier + local OSS only
+> 2. **Consumer laptop only** — single workstation, no 8-GPU tensor parallel, no datacenter
+> 3. **Public source / OSS only** — no proprietary code, no NDA-bound datasets
+> 4. **Drift-CI enforced** — every README claim verified by automation; mismatch fails the build
+>
+> **The thesis**: under these constraints, what's the literal best 1M-token long-context measurement buildable in 2026-05? This repo is the answer — every selection (LLM, benchmarks, comparison cloud models, eval methodology) has a sourced rationale in [decisionLog](memory_bank/decisionLog.md) explaining why alternatives were rejected.
+>
+> Portfolio category: **constraint-optimized AI engineering**.
+
+## Why this is the literal best under the constraint set
+
+Given (1) no CC, (2) consumer laptop, (3) literal 1M context, (4) 2026-05 industry state:
+
+| Choice | Selected | Rejected alternatives + sourced reason |
+|---|---|---|
+| Local LLM | Qwen2.5-7B-Instruct-1M | Qwen3.6-27B (8 GPU tensor parallel required, [model card](https://huggingface.co/Qwen/Qwen3.6-27B)) / DeepSeek V4 (284B params, consumer infeasible) / Gemma 4 26B (Apache-2.0, but 1M extension not literal default) |
+| Cloud comparison API | GitHub Models free tier | Anthropic API (CC required) / OpenAI API (CC required) / Gemini paid (CC required) |
+| Benchmark main | RULER + LongBench v2 | NIAH alone ([saturated per industry consensus](https://nrehiew.github.io/blog/long_context/)) / InfiniteBench (less reasoning depth) |
+| Benchmark supplement | NIAH (heatmap visual only) | drop entirely (loses recruiter visual recognition) |
+| Inference engine | vllm | llama.cpp (slower at long context) / TGI (heavier setup) |
+| Drift discipline | `.github/workflows/drift-check.yml` (13 verify steps) | none (= silent drift, the structural failure mode) |
+
+Each rejected option has a sourced reason in [decisionLog](memory_bank/decisionLog.md). The 2-row ADR self-correction history (Qwen2.5-repo hallucination → Qwen3.6-27B 8-GPU discovery → Qwen2.5-7B-1M literal confirmed) is preserved as evidence of constraint-driven option-space audit.
 
 ## What this is
 

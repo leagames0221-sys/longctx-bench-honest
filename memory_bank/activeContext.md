@@ -2,46 +2,46 @@
 
 ## Current phase
 
-**Phase 0 (overhaul commit pending)** — repo rename + scope literal 全面書き換え (Qwen2.5-7B-1M + RULER + LongBench v2 + 補助 NIAH に literal 確定、 ADR-001/003 archive + ADR-001-r2 / ADR-003-r1 新規) 完了見込、 overhaul commit + drift-check 再 verify 待ち。
+**Phase 1 partial COMPLETE (2026-05-12)** — Install layer GREEN + 4-cell NIAH scaling literal run + 6GB VRAM ceiling characterized + JSON evidence committed + README populated + ADR-007 + drift-CI 19/19 GREEN. Phase 2 (cloud frontier comparison via GitHub Models) is next.
 
 ## Current focus
 
-repo rename (longctx-needle-demo → longctx-bench-honest) + 中身全面書き換えを literal commit、 drift-check workflow が new claim 群 (4 model 名 + 3 benchmark 名 + repo 名 canon + Phase declaration + cost-tier table 構造) を 全件 green で verify することを実測。
+Phase 1 partial deliverable shipped to GitHub main ([commit bc9ae3d](https://github.com/leagames0221-sys/longctx-bench-honest/commit/bc9ae3d)). 4 JSON evidence files + 1 NIAH runner + README cost-tier populated + ADR-007 ceiling characterization + drift-CI extended with 4 new artifact-verify steps.
 
-## Next concrete steps (Phase 1)
+**Literal hardware ceiling sourced (★★★ tier evidence)**:
+- 4k context: PASS (252s inference, peak 10.8GB via Win shared-mem PCIe spillover, needle correctly extracted)
+- 5k+ context: OOM (single attention alloc exceeds 6GB physical + shared-mem fallback cap)
+- 128k / 1M: infeasible at this hardware tier (sourced in README + ADR-007 with citation chain)
 
-1. 3 prior art を `~/tmp/prior-art/` に literal 隔離 clone:
-   - `git clone --depth 1 https://github.com/NVIDIA/RULER.git` (Apache 2.0、 既 clone 済 = 不要)
-   - `git clone --depth 1 https://github.com/THUDM/LongBench.git` (Apache 2.0 想定、 audit で確定)
-   - `gkamradt/LLMTest_NeedleInAHaystack` は既 clone 済 (補助 visual 用に literal 残す、 MIT 確認済)
-   - `vllm-project/vllm` は既 clone 済 (Apache 2.0 確認済)
-2. LongBench v2 LICENSE 詳細確認 (repo root LICENSE file Read)
-3. vllm install path literal 実測 (Windows host 直接 → failure 時 WSL2 経由)、 結果を ADR-005 に literal 追記
-4. `Qwen2.5-7B-Instruct-1M` HuggingFace DL (~15GB)、 disk + VRAM 実測、 BF16 / Q4 quant 判断
-5. RULER 13 task generator を `eval/ruler/` に literal copy、 commit msg `derived from NVIDIA/RULER@<sha>`
-6. LongBench v2 evaluation script を `eval/longbench/` に literal copy、 commit msg attribution
-7. NIAH の `pretty_graph.py` を `eval/niah/` に literal copy (補助 visual 用)、 commit msg attribution
-8. baseline 128k RULER subset 走行、 公式 reference 数値範囲内一致 verify
-9. pip 配線: `pyproject.toml` + `uv.lock` commit + `pip-audit` CI step + `.github/dependabot.yml` for pip
-10. GitHub Models sample call (small context) で接続 + free tier rate limit 実測
-11. README Status を Phase 1 に更新、 drift-check workflow を Phase 1 用に拡張
+## Next concrete steps (Phase 2 entry)
+
+1. **GitHub Models token setup**: `gh auth token` → `.env` (gitignore済) with `GITHUB_TOKEN` literal export
+2. **Cloud cell runner**: `examples/cloud_niah.py` — OpenAI SDK with `base_url=https://models.github.ai/inference`, model param = `openai/gpt-5` / `meta/Llama-3.3-70B-Instruct` / `anthropic/claude-sonnet-4` (verify exact model_id strings via `gh api /catalog/models` or [marketplace catalog API](https://github.com/marketplace/models))
+3. **Same NIAH @ 4k task** literal repeated across the 3 cloud models for direct local-vs-frontier comparison at matched context size
+4. **Verify 4k input fits in 8000 token free-tier cap** (4k + ~100 output ≈ 4100 tokens = within cap ★★★, evidence: browser-agent-demo v5 hit cap at full DOM context ≈ 6000+ tokens)
+5. **Cost-tier table populate**: 3 cloud cells × 4k row literal filled with PASS/FAIL + inference_sec + cost (¥0 for free tier)
+6. **JSON evidence**: `artifacts/cloud_gpt5_4000.json` / `cloud_claude_4000.json` / `cloud_llama_4000.json`
+7. **drift-CI extension**: 3 new step (cloud artifacts + status + URL)
+
+## Phase 2 后半 candidate (optional, after cloud cells)
+
+- **WSL2 + vllm PagedAttention**: literal install path verify (free, no CC), check if PagedAttention extends ceiling from 4k → 8-16k on same 6GB GPU
+  - If yes: re-run scaling experiment in WSL2, populate cost-tier with extended cells, document WSL2 install path in SETUP.md
+  - If no / install fail: document the negative result as honest evidence
+- **Heatmap visualization**: NIAH-style depth × context heatmap for the 4k cell (single depth = 50% in current run, extend to multiple depths for portfolio visual)
+
+## Phase 3 (after Phase 2)
+
+- craftstack 上位 fold に 2 repo (browser-agent-demo + longctx-bench-honest) link + thesis 1 行 + cost-tier summary
+- r/LocalLLaMA + Hacker News post drafting ("constraint-optimized AI engineering: 4k VRAM ceiling on RTX 3050 + free-tier cloud cap at 6k = the literal map of consumer-laptop long-context measurement")
 
 ## Blockers
 
-なし (overhaul commit + drift-check 再 verify 後、 Phase 1 着手 OK)。
-
-## Open questions (Phase 1 で literal 解消)
-
-- Windows host で vllm install するか、 WSL2 経由か (literal 試して安定 path 選定、 ADR-005 起草)
-- VRAM 不足時 quant level (Q4_K_M / Q5 / FP16 のどれが consumer GPU で 1M context 完走可能か実測)
-- LongBench v2 LICENSE 詳細 (repo audit で確定)
-- GitHub Models free tier の 1 日 quota 実測 (Phase 2 で 4 model 走行に十分か)
+なし。 Phase 2 着手 OK (Phase 1 partial deliverable がGitHub main に literal shipped、 drift-CI green、 evidence URL 全件 live)。
 
 ## Out of scope (current phase)
 
-- 4 model × 3 benchmark 全 sweep (Phase 2)
-- cost-tier table 数値 populate (Phase 2、 JSON evidence 由来自動生成)
-- Honest results section literal 開示 (Phase 2)
-- 30s 動画撮影 (Phase 2)
-- craftstack 統合 (Phase 3)
-- 日本語 domain dataset (literal scope 外、 ADR-004 で確定)
+- 真の 1M context inference (consumer 6GB tier では物理不可、 ADR-007 で literal 記録済、 future RTX 4090 24GB / WSL2 PagedAttention path のみ candidate)
+- paid API integration (zero CC 制約違反、 literal scope 外)
+- 日本語 domain dataset (ADR-004 で literal scope 外確定済)
+- 30s 動画撮影 (Phase 3 craftstack 統合時の任意 deliverable)

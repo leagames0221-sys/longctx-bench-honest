@@ -46,3 +46,26 @@
 - baseline 128k 走行で公式 sample 数値範囲内一致 verify
 - pip 配線: `pyproject.toml` / `uv.lock` / pip-audit CI / Dependabot for pip
 - GitHub Models 接続 sample (small context) で free tier rate limit 実測
+
+---
+
+## 2026-05-11 — Phase 0 overhaul: repo rename + scope literal 全面書き換え (session: portfolio-init)
+
+**作業**:
+- WebSearch + WebFetch で 2026-05 industry state 確認 (Qwen3.6 / DeepSeek V4 / RULER / LongBench v2 / NIAH saturation evidence)
+- 2 度の hallucination 自己訂正を ADR archive (ADR-001-archived: Qwen2.5 repo `recipes/long_context/` 実在不在、 ADR-001-r1-archived: Qwen3.6-27B が VLM + 8 GPU 推奨 = D-CONSUMER-HW 違反)
+- LLM 確定: ADR-001-r2 で Qwen2.5-7B-Instruct-1M に literal 戻し (consumer laptop 唯一の真 1M 完走候補)
+- Benchmark 拡張: ADR-003-r1 で RULER + LongBench v2 + 補助 NIAH の 3 benchmark 構成に literal 移行
+- Dataset scope 確定: ADR-004 で 公開 source 限定、 日本語 domain dataset literal scope 外
+- repo rename: `gh repo rename longctx-needle-demo → longctx-bench-honest` 成功 + description 更新
+- local dir rename: `longctx-needle-demo → longctx-bench-honest` + git remote URL 更新
+- 9 file literal 全面書き換え: README.md / spec.md / CLAUDE.md / productContext.md / systemPatterns.md / decisionLog.md (ADR 6 件 + archive marker) / activeContext.md / 本 logbook (append) / drift-check.yml (拡張予定)
+
+**error**: なし (PowerShell native command で stderr が error 扱いされる仕様事象を除く)
+
+**進捗**: 9 file 書き換え完了見込、 drift-check 拡張 + commit + push + 再 verify 待ち
+
+**申し送り (次 session)**:
+- overhaul commit + push 完了後の drift-check workflow が new claim 群 (4 model 名 + 3 benchmark 名 + repo 名 canon + cost-tier table 構造 + Phase declaration) を全件 green で verify することを実測
+- Phase 1 entry point: 3 prior art audit (RULER + LongBench / vllm + NIAH は既 clone) + LongBench v2 LICENSE 確認 + vllm install path 実測 (Win vs WSL2) + Qwen 1M DL + baseline 128k RULER subset
+- portfolio differentiator は **measurement honesty + cost transparency + drift discipline** の 3 軸、 Phase 2 で cost-tier table 16 cell 自動生成 + Honest results section literal 開示が core deliverable

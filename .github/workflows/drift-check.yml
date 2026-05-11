@@ -41,13 +41,42 @@ jobs:
 
       - name: Verify README declares current phase
         run: |
-          grep -qE "^\*\*Phase [0-9]+\*\*" README.md || { echo "DRIFT: README missing Phase declaration"; exit 1; }
+          grep -qE "^\*\*Phase [0-9]+" README.md || { echo "DRIFT: README missing Phase declaration"; exit 1; }
 
       - name: Verify .gitignore covers secrets and model cache
         run: |
           grep -q "^\.env$" .gitignore || { echo "DRIFT: .gitignore does not exclude .env"; exit 1; }
           grep -q "huggingface" .gitignore || { echo "DRIFT: .gitignore missing huggingface cache"; exit 1; }
           grep -q "safetensors" .gitignore || { echo "DRIFT: .gitignore missing safetensors"; exit 1; }
+
+      - name: Verify repo name canon (longctx-bench-honest)
+        run: |
+          grep -q "longctx-bench-honest" README.md || { echo "DRIFT: README missing repo name canon"; exit 1; }
+          grep -q "longctx-bench-honest" CLAUDE.md || { echo "DRIFT: CLAUDE.md missing repo name canon"; exit 1; }
+          grep -q "longctx-bench-honest" spec.md || { echo "DRIFT: spec.md missing repo name canon"; exit 1; }
+
+      - name: Verify benchmark scope (RULER + LongBench v2 + NIAH)
+        run: |
+          grep -q "RULER" README.md || { echo "DRIFT: README missing RULER"; exit 1; }
+          grep -q "LongBench" README.md || { echo "DRIFT: README missing LongBench"; exit 1; }
+          grep -q "NIAH" README.md || { echo "DRIFT: README missing NIAH"; exit 1; }
+
+      - name: Verify model scope (Qwen2.5-7B-1M + GitHub Models)
+        run: |
+          grep -q "Qwen2.5-7B" README.md || { echo "DRIFT: README missing Qwen2.5-7B model"; exit 1; }
+          grep -q "GitHub Models" README.md || { echo "DRIFT: README missing GitHub Models"; exit 1; }
+          grep -q "GPT-5" README.md || { echo "DRIFT: README missing GPT-5"; exit 1; }
+          grep -q "Claude Sonnet" README.md || { echo "DRIFT: README missing Claude Sonnet"; exit 1; }
+          grep -q "Llama 3.3" README.md || { echo "DRIFT: README missing Llama 3.3"; exit 1; }
+
+      - name: Verify cost-tier transparency table structure
+        run: |
+          grep -q "Cost-tier transparency" README.md || { echo "DRIFT: README missing cost-tier section"; exit 1; }
+          grep -q "Credit card required" README.md || { echo "DRIFT: README missing Credit card required row"; exit 1; }
+
+      - name: Verify Honest results section exists
+        run: |
+          grep -q "Honest results" README.md || { echo "DRIFT: README missing Honest results section"; exit 1; }
 
       - name: Summary
         run: echo "All drift checks passed."

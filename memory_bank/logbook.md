@@ -398,3 +398,43 @@ Status: OOM at engine init (before any inference). Literal cause: int4 model wei
 - DO NOT propose creating portfolio #5/#6 until distribution generates signal (avoiding "designing in a vacuum")
 - Cleanup WSL2 11 GB only after user explicit "OK 実行して" (destructive gate enforced)
 
+
+---
+
+## 2026-05-12 — Distribution attempt: structural anti-new-account gate observed on both HN + Reddit (session: portfolio-continue)
+
+**作業**:
+- r/LocalLLaMA literal submit attempted with full body, Discussion flair set → **auto-mod 削除** within 1 minute (post visible in user's submissions but with "removed by moderator" banner). Likely cause: new account `u/leagames0221` lacks karma/age threshold.
+- HN `Show HN: Honest 6GB-VRAM map for Qwen2.5-7B-1M ...` literal submit attempted (after creating fresh account `leagames0221`) → **HN responded with "Update re Show HNs" page**: "We're temporarily restricting Show HNs because of a massive influx, mostly by users who aren't yet familiar with the site or its culture."
+- Both submission paths gated by anti-new-account guards (structural, not content-level).
+- GitHub topic tags added to both portfolio repos via `gh api PUT /topics` to improve discoverability via GitHub native search:
+  - longctx-bench-honest: long-context / llm / qwen / qwen2-5 / benchmark / vllm / transformers / bitsandbytes / niah / github-models / consumer-laptop / portfolio
+  - browser-agent-demo: llm / ollama / qwen / browser-automation / rpa / browser-use / local-llm / ai-agents / portfolio / defense-in-depth
+
+**Honest finding (★★★ structural)**:
+- Both major distribution channels (HN Show HN + r/LocalLLaMA) have explicit anti-new-account guards that cannot be bypassed by content quality
+- New accounts must build community standing first (5-10 substantive comments over 7+ days) before posting flag/Show HN
+- LinkedIn requires existing account; user has none
+- → today's distribution path is fundamentally gated, persistence would risk shadow-ban accumulation
+
+**Decision**: Hold both Reddit + HN posts. Pivot to passive discoverability today (GitHub topics applied), distribution retry in 1-2 weeks after karma building. AI assists in next session with comment drafting on others' threads to literal accumulate karma.
+
+**Other navigation attempted**:
+- An accidental redirect to hiveterm.com during HN submit attempt; likely browser extension hijack. Resolved by going direct to https://news.ycombinator.com/submit URL bar entry (no autocomplete).
+
+**進捗**: Distribution attempt for portfolio shipped today is on hold. GitHub topics applied as passive discoverability boost. Portfolio remains literal ★★★ tier and ready for distribution when account gates clear.
+
+**申し送り (next session, 1-2 weeks out)**:
+- Phase 4 distribution retry recommended cadence:
+  1. Day 1-7: User posts substantive technical comments on others' HN front-page threads (1-2 per day, AI helps draft when asked). Target: ~5-10 karma + 7+ days account age.
+  2. Day 8-10: User posts substantive comments in r/LocalLLaMA on others' threads. Target: ~5 comment karma in subreddit.
+  3. Day 11+: Re-attempt HN Show HN + r/LocalLLaMA post with same drafts (already in memory_bank/social_drafts.md).
+- If user creates LinkedIn before then: AI drafts portfolio announcement post (5-min user click) — likely highest-ROI single channel given recruiter density.
+- Alternative immediate distribution: direct contact to known recruiters / 受託 contacts with portfolio URL (1 craftstack URL → 3 repos visible).
+
+**Final portfolio state (post-today)**:
+- 3 GitHub repos public (craftstack production-grade + browser-agent-demo + longctx-bench-honest) with cross-link
+- All drift-CI green, 14 JSON evidence cells, 3 ADRs
+- GitHub topic tags applied to 2 of 3 (craftstack already had topics)
+- Distribution: pending account-age threshold, social_drafts.md ready for retry
+

@@ -29,22 +29,31 @@
 | #3 cost-tier visual icons | ★★ | ✅/❌/⏳/⛔ legend separates measured from predicted; sample-size + cold-load disclosed |
 | #7 memory bank drift | ★ | productContext + systemPatterns reflect actual Phase 2a/b delivery, not Phase 0 dream |
 
-## Next session candidates (D-SINGLE-ROUTE honest pick)
+## Next session candidates (D-SINGLE-ROUTE honest pick, post-2026-05-12-attempt update)
 
-**Recommended single best path: Distribution before new building** ★★★
+**2026-05-12 distribution attempt result**: Both Reddit r/LocalLLaMA and HN Show HN have **structural anti-new-account gates** that block immediate posting:
+- r/LocalLLaMA: auto-mod removed post within 1 minute of submit (account `u/leagames0221` too new / low karma)
+- HN: Show HN explicitly restricted for new accounts per HN's anti-influx page ("become a good contributor, then post an occasional Show HN")
+
+→ Distribution today is **structurally gated**, not a content failure. Pushing more aggressively risks shadow-ban accumulation.
+
+**Recommended single best path: Karma building → re-attempt distribution in 1-2 weeks** ★★★
 
 Rationale:
-- 3 portfolio repos at ★★★ tier with drift-CI + JSON evidence is already strong
-- Without distribution, no signal reaches recruiters / 受託先 → portfolio sits idle
-- r/LocalLLaMA + HN drafts already ready in `social_drafts.md` (5-min user click to submit)
-- Community feedback (good or bad) is the literal next data point — without it, more portfolio building is "designing in a vacuum"
-- After distribution generates signal, then decide: more breadth (portfolio #5/#6) vs more depth (multi-depth heatmap / falsification experiments)
+- Both gates require account standing (5-10 substantive comments + 7+ days age), unavoidable
+- GitHub topic tags added today (passive discoverability boost via native search, zero account requirement)
+- LinkedIn would bypass these gates but user has no account; account creation = 30-60 min commitment, deferred decision
+- 1-2 weeks of comment activity on others' HN/Reddit threads is the literal cheapest path to unblock both channels
 
-**Path (next session, AI-assistable steps)**:
-1. User submits r/LocalLLaMA post (5 min, user click) → 24h to see comments / votes
-2. User submits HN Show HN (5 min, user click) → 4h to see front-page chance
-3. Next session: AI helps respond to comments + draft replies + extract signal from feedback
-4. After 1 week of signal: decide if portfolio expansion (#5/#6) is warranted or if existing 3 are saturating the recruiter funnel
+**Cadence (AI-assistable)**:
+1. Day 1-7: User posts substantive technical comments on HN front-page threads relevant to LLM / consumer-hardware / benchmarks (1-2/day, AI drafts when asked). Target ~5-10 karma + 7+ days account age.
+2. Day 8-10: Same in r/LocalLLaMA on others' threads. Target ~5 sub-karma.
+3. Day 11+: Re-attempt HN Show HN + r/LocalLLaMA post with the same drafts in `memory_bank/social_drafts.md`.
+4. AI helps respond to comments in 30-60 min window after each post lands.
+
+**Alternative immediate distribution (if user wants signal today)**:
+- LinkedIn account create (30-60 min) + portfolio announcement post — highest single-channel ROI for engineer portfolio
+- Direct contact to known recruiters / 受託 contacts with craftstack URL (the 1 URL surfaces all 3 repos)
 
 **Lower-priority alternatives (Phase 4 deep-work, after distribution generates signal)**:
 - ADR-009 falsification experiments (4 zero-CC steps to promote ★★ → ★★★ causal claim)

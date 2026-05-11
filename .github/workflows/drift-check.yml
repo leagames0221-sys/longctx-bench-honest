@@ -170,5 +170,14 @@ jobs:
           grep -q "Anthropic" memory_bank/decisionLog.md || { echo "DRIFT: ADR-008 missing Anthropic-absent finding"; exit 1; }
           grep -q "unavailable_model" memory_bank/decisionLog.md || { echo "DRIFT: ADR-008 missing gpt-5 unavailable finding"; exit 1; }
 
+      - name: Verify Phase 2b WSL2 vllm negative result evidence + ADR-009
+        run: |
+          test -f examples/wsl_vllm_niah.py || { echo "DRIFT: examples/wsl_vllm_niah.py missing"; exit 1; }
+          test -f artifacts/wsl_vllm_4000.json || { echo "DRIFT: wsl_vllm_4000.json evidence missing"; exit 1; }
+          grep -q '"status": "OOM"' artifacts/wsl_vllm_4000.json || { echo "DRIFT: wsl_vllm_4000.json status != OOM (ADR-009 claim)"; exit 1; }
+          grep -q "ADR-009" memory_bank/decisionLog.md || { echo "DRIFT: decisionLog missing ADR-009"; exit 1; }
+          grep -q "shared-memory" memory_bank/decisionLog.md || { echo "DRIFT: ADR-009 missing Windows shared-memory finding"; exit 1; }
+          grep -q "wsl_vllm_4000.json" README.md || { echo "DRIFT: README missing wsl_vllm_4000.json link"; exit 1; }
+
       - name: Summary
         run: echo "All drift checks passed."

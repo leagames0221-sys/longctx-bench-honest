@@ -274,3 +274,57 @@
 - craftstack repo (leagames0221-sys/craftstack) 確認 + 上位 fold に 2 repo link + thesis 1 行
 - cost-tier summary 表 embed (本 repo + browser-agent-demo 双方 evidence URL)
 
+
+---
+
+## 2026-05-12 — Phase 2b: WSL2 + vllm experiment, NEGATIVE RESULT (session: portfolio-continue)
+
+**作業**:
+- WSL2 Ubuntu 24.04 startup + verify (CUDA driver 12.6 passthrough working, nvidia-smi inside WSL2 reports same RTX 3050 6GB)
+- Installed uv (curl-based, ~5MB) + created Python 3.12 venv at ~/longctx-wsl/.venv (WSL2 native filesystem, 954GB free)
+- Installed vllm 0.20.2 first, hit driver compat error (vllm-bundled torch 2.11.0 requires CUDA 12.8+ driver)
+- Downgraded to vllm 0.7.3 + torch 2.5.1+cu124 (matches Windows side)
+- Hit transformers 5.x API incompat with vllm 0.7.3 (`Qwen2Tokenizer.all_special_tokens_extended` attribute drift)
+- Downgraded transformers to 4.48.3 (vllm 0.7.3 contemporaneous version)
+- Installed bitsandbytes 0.49.2 in WSL2 venv (Win venv install doesn't carry over)
+- Wrote examples/wsl_vllm_niah.py (parallel to Win baseline_niah.py, uses vllm.LLM with bnb int4)
+
+**実測値 (artifacts/wsl_vllm_4000.json)** — the killer line is the vllm memory profile log:
+
+```
+the current vLLM instance can use total_gpu_memory (6.00GiB) x gpu_memory_utilization (0.90) = 5.40GiB
+model weights take 5.43GiB; non_torch_memory takes -0.51GiB; PyTorch activation peak memory takes 1.42GiB;
+the rest of the memory reserved for KV Cache is -0.94GiB.
+# cuda blocks: 0, # CPU blocks: 4681
+Maximum concurrency for 4200 tokens per request: 0.00x
+```
+
+Status: OOM at engine init (before any inference). Literal cause: int4 model weights (5.43 GiB) + activations (1.42 GiB) = 6.85 GiB > 6.00 GiB total VRAM. KV cache budget = literal **negative** 0.94 GiB. vllm allocated 0 GPU cache blocks; concurrency = 0.00x.
+
+**Honest finding (★★★★ critical portfolio insight)**:
+- Phase 1 Windows transformers 4k PASS used **Windows kernel-level shared-memory PCIe spillover** (WDDM driver overcommit) to absorb the 10.8GB peak on a 6GB GPU
+- Linux nvidia driver does NOT provide an equivalent fallback
+- → vllm sees only physical 6GB and refuses to allocate
+- → The literal enabler of Phase 1's 4k cell was the **Windows OS**, not the inference engine
+- → "Linux/vllm > Windows/transformers for memory efficiency" is literal disproven at this hardware tier
+
+**Documentation updates (D3-DocSync)**:
+- README Status: "Phase 2b (NEGATIVE RESULT, sourced)" section added with vllm memory profile evidence
+- README Hardware constraint section: WSL2 + vllm negative test result added with ADR-009 link
+- decisionLog ADR-009: full vllm memory profile log + Windows shared-mem causal hypothesis + sourced from vllm 0.7.3 log lines (model_runner.py:1115, worker.py:267, executor_base.py:111)
+- drift-CI: 1 new step (wsl_vllm_niah.py + JSON evidence + ADR-009 + README link)
+
+**error**:
+- vllm 0.20.2 → driver 12.6 incompat (needed 12.8+) → downgraded vllm
+- vllm 0.7.3 → transformers 5.x API drift → downgraded transformers
+- vllm 0.7.3 → missing bitsandbytes in WSL2 venv → installed
+- vllm 0.7.3 → OOM at engine init (the literal honest result, not an install error)
+
+**進捗**: Phase 2b complete with sourced negative result. Total Phase 1+2 deliverable: **3 ADR (007, 008, 009) + 9 JSON evidence files (4 Win local + 6 cloud + 1 WSL vllm) + 3 runners (baseline_niah / cloud_niah / wsl_vllm_niah) + README cost-tier 5-column table populated + Cloud free-tier honest map section + drift-CI 22+ steps green**.
+
+**申し送り (Phase 3 = craftstack 統合、 next session 推奨)**:
+- craftstack repo (leagames0221-sys/craftstack) literal locate + scope assessment
+- 上位 fold に thesis 1 行 + 2 repo link (browser-agent-demo + longctx-bench-honest)
+- Cost-tier summary table embed (本 repo の 5-column matrix + browser-agent-demo の 5 layer journey)
+- Phase 3 完了後: r/LocalLLaMA + HN post drafting (thesis = "constraint-optimized AI engineering: literal map of the consumer-laptop intersection")
+

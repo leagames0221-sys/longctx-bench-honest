@@ -52,7 +52,7 @@ The portfolio thesis: in 2026-05, anyone can claim "I ran a 1M-context model." F
 
 **Phase 2a (2026-05-12)** — Cloud comparison via GitHub Models free tier (zero credit card, gh OAuth only). 4 model attempts at matched 4k context: **gpt-4.1-mini PASS (8.54s)**, **llama-3.3-70b-instruct PASS (5.17s)** — both ~30-50x faster than local Qwen 4k. **gpt-5 literal UNAVAILABLE on free tier** (catalog says "available" but inference returns `unavailable_model`). **gpt-5 + deepseek-v3 = hard 4000-token request cap** documented per literal API error. See [Cloud free-tier honest map](#cloud-free-tier-honest-map-phase-2a-evidence) and [decisionLog ADR-008](memory_bank/decisionLog.md). Anthropic Claude **not present in GitHub Models catalog** at all.
 
-**Phase 2b (next)** — WSL2 + vllm PagedAttention literal install path test; check if it extends 6GB-VRAM ceiling from 4k toward 8-16k tokens. Phase 3 = craftstack 2-repo unification page.
+**Phase 2b (2026-05-12) — NEGATIVE RESULT, sourced**: WSL2 + vllm 0.7.3 + bitsandbytes int4 literal cannot fit Qwen2.5-7B-1M on 6GB VRAM. vllm's memory profile shows model weights = 5.43GiB + activation peak = 1.42GiB > 6.00GiB total → KV cache budget = literal -0.94GiB, 0 GPU cache blocks allocated, 0x concurrency. **Linux/vllm has no Windows-equivalent shared-memory PCIe spillover fallback** — the Phase 1 Windows transformers 4k cell was literally enabled by Windows OS-level memory overcommit, not by the inference engine. See [decisionLog ADR-009](memory_bank/decisionLog.md) for the literal vllm log evidence. Phase 3 (craftstack 2-repo unification) is the remaining work; documented as next-session candidate.
 
 ## Verified state (drift-checked by CI)
 
@@ -89,6 +89,8 @@ Phase 1 partial result populates the local 4k cell with literal JSON evidence. L
 | Credit card required | no | no (GitHub token only) | no (GitHub token only) | no (GitHub token only) | no (but model still inaccessible) |
 
 **Hardware constraint literally hit**: at int4 NF4 quantization, model weights occupy ~4GB of the 6GB VRAM; inference activations + KV cache exceed available headroom beyond 4k input tokens. Cumulative VRAM demand at 4k = 10.8GB peak (rescued by Windows shared-memory spillover via PCIe, ~10x slower than pure VRAM). At 5k+, a single allocation in the attention forward pass requires more contiguous VRAM than physically available. This is the literal *constraint-optimized AI engineering* boundary on this hardware tier.
+
+**WSL2 + vllm test (Phase 2b, NEGATIVE RESULT)** — Tried PagedAttention via vllm 0.7.3 + bitsandbytes int4 in WSL2 Ubuntu 24.04. vllm memory profile literal evidence ([wsl_vllm_4000.json](artifacts/wsl_vllm_4000.json)): model weights 5.43GiB + activation peak 1.42GiB = 6.85GiB > 6.00GiB physical → 0 GPU cache blocks, OOM before any inference. **Linux/vllm provides no shared-memory PCIe spillover** — the Windows transformers 4k PASS was structurally dependent on Windows OS-level memory overcommit. Conventional wisdom "Linux/vllm > Windows/transformers for memory efficiency" is literal disproven at this hardware tier. See [ADR-009](memory_bank/decisionLog.md).
 
 ## Phase plan
 

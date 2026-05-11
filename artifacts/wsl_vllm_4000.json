@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "task": "niah_single",
+  "runtime": "wsl2_vllm",
+  "model": "Qwen/Qwen2.5-7B-Instruct-1M",
+  "quantization": "bitsandbytes-int4",
+  "vllm_version": "0.7.3",
+  "context_tokens_target": 4000,
+  "max_model_len": 4200,
+  "gpu_memory_utilization": 0.9,
+  "depth_pct": 50.0,
+  "seed": 42,
+  "needle_value": "2867825",
+  "host": {
+    "gpu": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+    "vram_total_gb": 6.0,
+    "cuda_version": "12.4",
+    "torch_version": "2.5.1+cu124"
+  },
+  "context_tokens_actual": 3851,
+  "status": "OOM",
+  "error": "ValueError: No available memory for the cache blocks. Try increasing `gpu_memory_utilization` when initializing the engine."
+}

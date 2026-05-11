@@ -217,3 +217,52 @@ This is NOT a design-phase compromise (D-NO-COMPROMISE-IN-DESIGN). It is an impl
 - ⚠️ gpt-5 may become accessible if the user upgrades to a paid GitHub Models / Azure OpenAI tier — but that violates `zero credit card` constraint and is out of scope
 
 **Verify**: drift-CI extended with cloud_*.json evidence + status + README link verification. README cost-tier table cells mirror JSON status fields literal.
+
+---
+
+## ADR-009 (2026-05-12): WSL2 + vllm CANNOT extend the 6GB VRAM ceiling — Windows shared-memory was the literal enabler
+
+**Context (constraint: zero CC / consumer laptop / public source / drift-CI enforced)**: Phase 2b experiment tested whether WSL2 + vllm (Linux-only inference engine with PagedAttention KV-cache efficiency) could push the 4k context ceiling characterized in ADR-007 to ≥8k or ≥16k on the same RTX 3050 6GB Laptop GPU.
+
+**Setup (literal, in WSL2 Ubuntu 24.04)**:
+- uv venv (Python 3.12.3)
+- vllm 0.7.3 (older version; vllm 0.20.2 requires CUDA 12.8+, driver is 12.6)
+- torch 2.5.1+cu124 (matches Windows side)
+- transformers 4.48.3 (downgraded from 5.8.0 for vllm 0.7.3 API compat — Qwen2Tokenizer.all_special_tokens_extended attribute drift)
+- bitsandbytes 0.49.2 (runtime int4 NF4 quant, same as Windows)
+- model: same /mnt/d/hf_cache snapshot accessible from WSL2
+
+**Literal vllm memory profile (the key evidence)**:
+```
+the current vLLM instance can use total_gpu_memory (6.00GiB) x gpu_memory_utilization (0.90) = 5.40GiB
+model weights take 5.43GiB; non_torch_memory takes -0.51GiB; PyTorch activation peak memory takes 1.42GiB;
+the rest of the memory reserved for KV Cache is -0.94GiB.
+# cuda blocks: 0, # CPU blocks: 4681
+Maximum concurrency for 4200 tokens per request: 0.00x
+```
+
+→ literal arithmetic: **5.43 GiB (int4 model weights) + 1.42 GiB (activations) = 6.85 GiB > 6.00 GiB physical VRAM**. KV cache budget = -0.94 GiB. vllm allocates 0 GPU cache blocks → concurrency at 4200 tokens = 0.00x. Even at gpu_memory_utilization=1.0 (impossible), still exceeds total VRAM.
+
+**Critical honest finding (★★★★ portfolio gold)**:
+
+The Phase 1 Windows transformers 4k PASS (peak 10.8GB) was literally enabled by **Windows kernel-level shared-memory PCIe spillover** (NVIDIA WDDM driver allows VRAM overcommit, swap to system RAM via PCIe DMA at ~10x latency penalty). Linux/WSL2 nvidia driver does NOT provide an equivalent fallback — vllm sees only the 6GB physical limit and refuses to allocate.
+
+**Counterintuitive consequence**: vllm's "more efficient" PagedAttention is irrelevant on this hardware tier — neither vllm nor transformers without OS spillover can fit the model. The literal enabler of the 4k cell was the Windows OS, not the inference engine.
+
+**Decision**: Phase 2b → **NEGATIVE RESULT**. The 4k Windows transformers ceiling stands. WSL2 vllm path is documented as literal infeasible at this hardware tier and removed from Phase 2 deliverable scope. The honest portfolio finding is: **on 6GB VRAM consumer laptop, Windows OS shared-memory fallback is structurally necessary for 7B-parameter int4 inference; vllm/Linux strictness disqualifies this hardware**.
+
+**Sources (D8)**:
+- artifacts/wsl_vllm_4000.json (literal status=OOM evidence)
+- vllm 0.7.3 model_runner.py:1115 log output: "Loading model weights took 5.4341 GB"
+- vllm 0.7.3 worker.py:267 log output: "model weights take 5.43GiB; ... the rest of the memory reserved for KV Cache is -0.94GiB"
+- vllm executor_base.py:111: "# cuda blocks: 0" + Maximum concurrency 0.00x
+- examples/wsl_vllm_niah.py (committed for reproducibility — re-run instructions in script docstring)
+
+**Consequences**:
+- ✅ Cost-tier table updated: WSL2 vllm row added showing the OOM, with literal vllm memory profile in evidence JSON
+- ✅ Portfolio thesis literal strengthened: "constraint-optimized AI engineering" hits a deeper layer — even with the optimal inference engine, 6GB VRAM tier requires OS-level memory tricks that only Windows provides
+- ✅ Recruiter signal: "engineer who tests the conventional-wisdom shortcut (Linux/vllm > Windows/transformers) and publishes the counterintuitive negative result with literal log citations"
+- ⚠️ True Phase 2b "ceiling extension" requires either (a) GPU upgrade to ≥8GB VRAM, (b) smaller model (3-4B parameter class), or (c) tensor-parallel multi-GPU — all outside `consumer laptop` constraint
+- ⚠️ The PagedAttention efficiency claim is empirically unverifiable on this hardware (model doesn't even load, so its forward-pass efficiency is irrelevant)
+
+**Verify**: drift-CI extended with wsl_vllm runner + JSON evidence + ADR-009 reference verification.

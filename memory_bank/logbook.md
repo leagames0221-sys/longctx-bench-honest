@@ -117,3 +117,34 @@
 - NIAH の `needlehaystack/` + `viz/` を 自 repo `eval/niah/` に literal copy (補助 heatmap)
 - baseline 128k RULER subset (synthetic.yaml の 1 task で) 走行、 公式 reference 数値範囲内一致 verify
 - GitHub Models sample API call (small context) で接続 + free tier rate limit 実測
+
+---
+
+## 2026-05-11 — Phase 1 extract: RULER + LongBench + NIAH 抽出 + NOTICE + SETUP + HF DL kickoff (session: portfolio-init)
+
+**作業**:
+- env verified: WSL2 Ubuntu v2 already installed ★★★ (vllm WSL2 path 即実行可能、 ADR-005 起草準備)、 huggingface_hub 1.10.2 (`hf` new CLI 使用、 `huggingface-cli` deprecated)
+- prior art literal 抽出:
+  - **RULER** (SHA `ab17b7853df4e0a30b78cd5d2b463ac7dff6ee13`、 Apache 2.0、 1,536★、 2025-11-13 push) → `eval/ruler/`、 14 files
+    - `scripts/{synthetic.yaml, config_models.sh, config_tasks.sh, run.sh}`
+    - `scripts/data/{manifest_utils, prepare, template, tokenizer}.py`
+    - `scripts/data/synthetic/*.py` (13 task generators incl niah, qa, variable_tracking, etc.)
+  - **LongBench** (SHA `2e00731f8d0bff23dc4325161044d0ed8af94c1e`、 MIT、 1,168★、 2025-01-15 push、 ACL 2025) → `eval/longbench/`、 10 files (pred.py + result.py + config/ + prompts/ + requirements.txt)
+  - **NIAH** (SHA `7b90d285651b68d39a94f3d3bd3672f84192c989`、 MIT、 2,282★、 2024-08-17 push、 stale だが補助 visual valid) → `eval/niah/`、 69 files (viz/ + needlehaystack/ + requirements.txt)
+- `NOTICE.md` 配置: 4 prior art (RULER + LongBench + NIAH + Qwen + vllm) attribution + audit log + license compatibility note
+- `SETUP.md` 配置: Phase 1 install runbook (D: HF cache redirect + Qwen 1M DL + vllm WSL2 path + pip-audit + GitHub Models token + baseline 128k RULER subset)
+- **HF DL kickoff (background)**: `hf download Qwen/Qwen2.5-7B-Instruct-1M --cache-dir D:\hf_cache\hub` 走行中、 fetching 15 files、 progress log: D:\hf_cache\dl_progress.log
+  - symlink warning出力 (Windows native では non-symlink mode、 容量増 risk ★ 軽微)
+  - bandwidth 次第で 30 min - 2h 程度の予測
+
+**error**:
+- 当初 `huggingface-cli` command が deprecated でexit 1 fail → `hf` new CLI に切替成功
+
+**進捗**: Phase 1 extract + docs 配線完了見込、 HF DL 進行中 (30 min - 2h ETA)、 commit + push + drift-check verify 待ち。 vllm install (WSL2 経由) は ADR-005 起草と pair で次 session。
+
+**申し送り (次 session)**:
+- HF DL 完了 verify (`Get-ChildItem D:\hf_cache\hub\models--Qwen--Qwen2.5-7B-Instruct-1M -Recurse | Measure-Object -Property Length -Sum` で ~15GB 確認)
+- WSL2 環境で uv sync (vllm + transformers + 他 deps install)、 ADR-005 「vllm WSL2 install path 確定」 を decisionLog 起草
+- GitHub Models token 取得 (read:packages scope、 CC 不要)、 .env (.gitignore 済) に literal 保存
+- baseline 128k RULER subset 走行 (1 task = niah_single_1 等)、 公式 RULER reference 数値範囲内一致 verify
+- JSON evidence → `artifacts/baseline_128k.json` literal 保存、 logbook に summary append

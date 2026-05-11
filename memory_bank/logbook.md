@@ -90,3 +90,30 @@
 **申し送り (次 session)**:
 - Phase 1 着手時、 全 ADR の Context section に `(constraint: zero CC / consumer laptop / public source / drift-CI)` を literal 明記、 thesis を ADR 単位でも literal 反映
 - craftstack 上位 fold は Phase 3 で同 thesis を hub message として配置 (2 repo + thesis 1 行)
+
+---
+
+## 2026-05-11 — Phase 1 prep: supply chain defense + D: disk redirect (session: portfolio-init)
+
+**作業**:
+- D: drive 環境変数 set (HF_HOME=D:\hf_cache + HF_HUB_CACHE=D:\hf_cache\hub) + D:\hf_cache\hub + D:\venvs dir 作成
+- C: drive 45.6GB free (9.6%) = Windows safe zone 危険水域、 D: 182.7GB free で 15GB Qwen weight + 5GB venv literal 受け止め
+- pyproject.toml skeleton 配置: vllm>=0.7 (Windows platform marker 除外、 WSL2 fallback ADR-005) + transformers>=4.46 + huggingface-hub>=0.26 + datasets>=3.0 + openai>=1.50 + matplotlib + seaborn + numpy + pandas + dev (pytest + pip-audit + ruff)
+- .github/dependabot.yml 配線 (pip ecosystem + github-actions ecosystem、 weekly schedule)
+- drift-check workflow 拡張: pyproject.toml metadata + dependabot.yml pip ecosystem + Disk layout + HF_HOME 文書化 + pip-audit declared の 4 step 追加 (15 step → 19 step)
+- README 「Disk layout (consumer laptop constraint, 15GB model weight)」 section 追加、 D: redirect literal command + Lifecycle (Phase 2 後 D: 削除 OK) 明記
+
+**Rationale (D8 source: WebSearch + WebFetch evidence)**:
+- vllm Windows native install historically 不安定、 platform_system != 'Windows' marker で Linux/macOS のみ pip install、 Windows は WSL2 経由 (ADR-005 Phase 1 起草)
+- 15GB Qwen 1M weight + 5GB vllm/torch deps + 5GB transient build = 合計 25GB、 C: 9.6% free では literal infeasible
+
+**進捗**: Phase 1 prep 配線完了見込、 commit + push + drift-check 再 verify 待ち
+
+**申し送り (次 session = Phase 1 heavy install)**:
+- vllm install path 検証: Windows host で `uv sync` failure 確実視 → WSL2 fallback、 結果を ADR-005 literal 起草
+- HF DL kickoff (background): `huggingface-cli download Qwen/Qwen2.5-7B-Instruct-1M` (~15GB、 D: hf_cache literal store、 数十分 order)
+- RULER の `scripts/data/synthetic/{niah,qa,variable_tracking,common_words_extraction,freq_words_extraction}.py` + `synthetic.yaml` + `run.sh` を 自 repo `eval/ruler/` に literal copy
+- LongBench の `pred.py` + `result.py` + `config/` + `prompts/` を 自 repo `eval/longbench/` に literal copy
+- NIAH の `needlehaystack/` + `viz/` を 自 repo `eval/niah/` に literal copy (補助 heatmap)
+- baseline 128k RULER subset (synthetic.yaml の 1 task で) 走行、 公式 reference 数値範囲内一致 verify
+- GitHub Models sample API call (small context) で接続 + free tier rate limit 実測

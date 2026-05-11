@@ -100,6 +100,24 @@ Expected categories:
 
 Phase 1 populates install + run commands. Phase 0 state is scaffolds only.
 
+## Disk layout (consumer laptop constraint, 15GB model weight)
+
+The Qwen2.5-7B-Instruct-1M weight is ~15GB. To preserve C: drive capacity (Windows recommends 15-20% free), this repo redirects HuggingFace cache and the Python venv to D: drive:
+
+```powershell
+# Set once per user (persistent)
+[Environment]::SetEnvironmentVariable("HF_HOME", "D:\hf_cache", "User")
+[Environment]::SetEnvironmentVariable("HF_HUB_CACHE", "D:\hf_cache\hub", "User")
+
+# venv on D: (uv supports custom env path)
+$env:UV_PROJECT_ENVIRONMENT = "D:\venvs\longctx-bench-honest"
+uv sync
+```
+
+**Lifecycle**: D: footprint (`hf_cache` ~15GB + `venvs` ~5GB) is needed only during Phase 1 install + Phase 2 measurement. Once Phase 2 JSON evidence + heatmap PNG is pushed to this repo, **D: cache is safe to delete**. The repo itself is self-contained (code + JSON + PNG = a few MB).
+
+If a third party clones this repo and wants to re-run, the `## Quickstart` section in Phase 1 documents the same D: redirect pattern (or any drive with ≥20GB free).
+
 ## Architecture
 
 Phase 1 populates architecture diagram. Phase 0 scaffold structure:

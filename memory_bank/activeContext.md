@@ -2,7 +2,7 @@
 
 ## Current phase
 
-**Phase 1 + 2a + 2b + 3 + post-audit fix COMPLETE (2026-05-12).** Portfolio is at ★★★ tier (post-self-audit + 4 fix). craftstack PR #70 literal merged + main HEAD has "Related portfolio work" cross-link. Social distribution drafts ready in `memory_bank/social_drafts.md`. Next session = distribution (r/LocalLLaMA + HN post) is the highest-ROI move; new portfolio breadth (#5 / #6) is lower priority until distribution generates signal.
+**Phase 1 + 2a + 2b + 3 + post-audit fix + distribution-on-Dev.to COMPLETE (2026-05-12).** Portfolio is at ★★★ tier (post-self-audit + 4 fix + Dev.to active broadcast). craftstack PR #70 literal merged + main HEAD has "Related portfolio work" cross-link. **Dev.to article PUBLISHED**: https://dev.to/leagames0221sys/counterintuitive-wsl2-vllm-cannot-fit-qwen25-7b-1m-on-6gb-vram-where-windows-transformers-can-597b (HTTP 200 verified, 4 tags, full 3-finding narrative). r/LocalLLaMA + HN Show HN pending 1-2 weeks karma building.
 
 ## Aggregate deliverable state (post-audit, ★★★ tier)
 

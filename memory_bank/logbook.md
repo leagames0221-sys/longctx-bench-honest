@@ -438,3 +438,41 @@ Status: OOM at engine init (before any inference). Literal cause: int4 model wei
 - GitHub topic tags applied to 2 of 3 (craftstack already had topics)
 - Distribution: pending account-age threshold, social_drafts.md ready for retry
 
+
+---
+
+## 2026-05-12 — Dev.to article PUBLISHED ★★★ (session: portfolio-continue, distribution success)
+
+**作業**:
+- Dev.to account 作成 (GitHub OAuth、 username `leagames0221sys`、 display name `tomohiro takada`、 no face photo per user preference)
+- Bio: "Constraint-optimized engineer. Portfolio: full-stack web + LLM systems + honest measurement. Zero CC, drift-CI enforced." (120 char)
+- Article published with title "Counterintuitive: WSL2 + vllm cannot fit Qwen2.5-7B-1M on 6GB VRAM where Windows transformers can"
+- Tags: #llm #machinelearning #opensource #showdev
+- Body: full Reddit-draft content (3 honest findings + repo links + hardware specs + cross-repo thesis)
+
+**Published URL** (literal live, HTTP 200 verified):
+https://dev.to/leagames0221sys/counterintuitive-wsl2-vllm-cannot-fit-qwen25-7b-1m-on-6gb-vram-where-windows-transformers-can-597b
+
+**Distribution coverage achieved today**:
+| channel | status |
+|---|---|
+| GitHub 3 repo public + cross-link | ✅ |
+| GitHub topic tags (22 total) | ✅ |
+| Dev.to article public | ✅ ★★★ (今回 literal 新規達成) |
+| Reddit r/LocalLLaMA | ⏳ pending karma building 1-2 weeks |
+| HN Show HN | ⏳ pending karma building 1-2 weeks |
+
+**Dev.to の passive distribution mechanism (★★ tier 予測)**:
+- 4 tag (#llm #machinelearning #opensource #showdev) の follower feed に literal 即露出
+- Dev.to Daily / Weekly digest 候補 (algorithm 選定、 high-engagement post なら ~24h で picks up)
+- Google indexing (~24-72h で literal search hit 化、 SEO 効果は HN/Reddit より長期持続)
+- engagement metrics (Dev.to 内 stats page で view count / reactions / comments literal tracking 可能、 Edit/Manage/Stats button から access)
+
+**進捗**: 本 session で literal distribution 達成 ★★★、 当初 「distribution は 1-2 週間後」 予測が前倒し成功 (Dev.to 経路発見)
+
+**申し送り (next session 候補)**:
+1. **24-48h 後 reaction monitoring**: Dev.to stats page (https://dev.to/leagames0221sys/dashboard) で view / reactions / comments 確認、 comment あれば AI が reply 起草
+2. **karma building 並行進行**: Reddit r/LocalLLaMA + HN で他人 thread に substantive comment 投稿、 1-2 週間後 retry
+3. **follow-up Dev.to article 検討** (任意): browser-agent-demo の 5-layer defense journey が次 article 候補、 cross-link 補強
+4. **WSL2 11GB cleanup** は user explicit "OK 実行して" 待ち、 portfolio 機能 literal 影響なし
+

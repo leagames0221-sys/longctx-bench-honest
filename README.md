@@ -6,20 +6,28 @@
 
 [![drift-check](https://github.com/leagames0221-sys/longctx-bench-honest/actions/workflows/drift-check.yml/badge.svg)](https://github.com/leagames0221-sys/longctx-bench-honest/actions/workflows/drift-check.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Constraint: zero CC](https://img.shields.io/badge/Constraint-zero%20credit%20card-blue)](#selected-under)
+[![Constraint: zero credit card](https://img.shields.io/badge/Constraint-zero%20credit%20card-blue)](#selected-under)
+[![Constraint: local LLM (default)](https://img.shields.io/badge/Constraint-local%20LLM%20%28default%29-blue)](#selected-under)
+[![Constraint: free / OSS only](https://img.shields.io/badge/Constraint-free%20%2F%20OSS%20only-blue)](#selected-under)
+[![Constraint: security defense-in-depth](https://img.shields.io/badge/Constraint-security%20defense--in--depth-blue)](#selected-under)
 [![Constraint: consumer laptop](https://img.shields.io/badge/Constraint-consumer%20laptop-blue)](#selected-under)
 [![Constraint: drift-CI enforced](https://img.shields.io/badge/Constraint-drift--CI%20enforced-blue)](#selected-under)
 
 ## Selected under
 
-> **The constraint set** (every component of this repo was selected to satisfy *all four* simultaneously):
+> **The 4-constraint set** (applied across the full portfolio — verified consistent across all 11 portfolio repos):
 >
-> 1. **Zero credit card** — no Anthropic / OpenAI paid API; GitHub Models free tier + local OSS only
-> 2. **Consumer laptop only** — single workstation, no 8-GPU tensor parallel, no datacenter
-> 3. **Public source / OSS only** — no proprietary code, no NDA-bound datasets
-> 4. **Drift-CI enforced** — every README claim verified by automation; mismatch fails the build
+> 1. **Zero credit card** — no paid API / cloud service required for the default path. A reviewer can clone, install, and run with $0 spend and no payment method on file.
+> 2. **Local LLM (default)** — when an LLM is involved, the default path is local (Ollama / similar) or deterministic mock. Paid cloud LLM is opt-in via env var, never default.
+> 3. **Free / OSS only** — every runtime dependency is permissively-licensed open source (MIT / Apache-2.0 / BSD-3); no proprietary SDK at build time.
+> 4. **Security defense-in-depth** — secrets-scan CI + `.gitignore` hardening, encrypted-at-rest where PII is involved, append-only audit logging where applicable, dep-vuln gating (`pip-audit` / `pnpm audit`), paid-API constructor gate where applicable.
 >
-> **The thesis**: under these constraints, what's the literal best 1M-token long-context measurement buildable in 2026-05? This repo is the answer — every selection (LLM, benchmarks, comparison cloud models, eval methodology) has a sourced rationale in [decisionLog](memory_bank/decisionLog.md) explaining why alternatives were rejected.
+> **Additional repo-specific constraints** (this repo applies 2 more on top of the 4 portfolio baseline):
+>
+> - **Consumer laptop only** — single workstation, no 8-GPU tensor parallel, no datacenter (local model = Qwen2.5-7B-Instruct-1M on consumer GPU; cloud comparison via GitHub Models free tier with `gh auth token`)
+> - **Drift-CI enforced** — every README claim verified by [drift-check CI](.github/workflows/drift-check.yml); mismatch fails the build (cost-tier table numerics literal-matched against `artifacts/*.json` JSON evidence)
+>
+> **The thesis**: under these 6 constraints simultaneously, what's the literal best 1M-token long-context measurement buildable in 2026-05? This repo is the answer — every selection (LLM, benchmarks, comparison cloud models, eval methodology) has a sourced rationale in [decisionLog](memory_bank/decisionLog.md) explaining why alternatives were rejected.
 >
 > Portfolio category: **constraint-optimized AI engineering**.
 

@@ -110,6 +110,20 @@ Phase 1 partial result populates the local 4k cell with literal JSON evidence. L
 
 **WSL2 + vllm test (Phase 2b, NEGATIVE RESULT)** — Tried PagedAttention via vllm 0.7.3 + bitsandbytes int4 in WSL2 Ubuntu 24.04. vllm memory profile literal evidence ([wsl_vllm_4000.json](artifacts/wsl_vllm_4000.json)): model weights 5.43GiB + activation peak 1.42GiB = 6.85GiB > 6.00GiB physical → 0 GPU cache blocks, OOM before any inference. **Linux/vllm provides no shared-memory PCIe spillover** — the Windows transformers 4k PASS was structurally dependent on Windows OS-level memory overcommit. Conventional wisdom "Linux/vllm > Windows/transformers for memory efficiency" is literal disproven at this hardware tier. See [ADR-009](memory_bank/decisionLog.md).
 
+### Visual summary
+
+![NIAH Phase 1 heatmap](docs/heatmap/niah_phase1.png)
+
+Auto-rendered from `artifacts/*.json` by [docs/heatmap/render.py](docs/heatmap/render.py)
+(matplotlib + numpy, no network egress). Cells follow the cost-tier table above:
+`PASS` = green, `OOM` = red (local hardware ceiling), `TOKEN_LIMIT` = yellow
+(cloud free-tier cap), `ERROR` = dark red (model unavailable), `N/A` = grey
+(not measured in Phase 1). Regenerate after adding artifacts:
+
+```bash
+python docs/heatmap/render.py
+```
+
 ## Phase plan
 
 | Phase | Scope | End gate |

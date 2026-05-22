@@ -476,3 +476,13 @@ https://dev.to/leagames0221sys/counterintuitive-wsl2-vllm-cannot-fit-qwen25-7b-1
 3. **follow-up Dev.to article 検討** (任意): browser-agent-demo の 5-layer defense journey が次 article 候補、 cross-link 補強
 4. **WSL2 11GB cleanup** は user explicit "OK 実行して" 待ち、 portfolio 機能 literal 影響なし
 
+
+---
+
+## § 2026-05-22 — README Quickstart Phase 0 scaffold literal supersede (rubric #1 gate preparatory fix)
+
+- **作業**: README § Quickstart の 「Phase 1 populates install + run commands. Phase 0 state is scaffolds only.」 一行を SETUP.md ref + 7-step literal sequence に supersede。 全 step は 既存 SETUP.md (Step 1-6c) からの literal short form、 new claim 追加なし。
+- **why**: portfolio rubric v3.0 #1 (ツール動作 check — fresh clone → setup → smoke 実行で PASS) literal gate。 既 Phase 2 完遂 (artifacts/*.json 11 cells + heatmap PNG landed) state なのに README Quickstart が Phase 0 scaffold state literal 残置 = 第三者 fresh clone 時 install path 不明、 #1 literal fail trigger。
+- **scope**: README.md 1 file edit のみ、 SETUP.md content は touch なし (full detail SSoT 維持、 DRY / no content duplication)、 cost-tier table 数値 / model 名 / Phase plan section 全件 unchanged
+- **drift-check 順守**: 新 claim 追加なし、 model 名 (Qwen2.5-7B-Instruct-1M / openai/gpt-4.1-mini) + repo 名 + artifacts file 名 全件 SETUP.md canon literal
+- **dispatch**: writer 自力 全 work、 external review agent dispatch ゼロ

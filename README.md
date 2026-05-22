@@ -181,7 +181,42 @@ Citation chain for the literal API responses: [decisionLog ADR-008](memory_bank/
 
 ## Quickstart
 
-Phase 1 populates install + run commands. Phase 0 state is scaffolds only.
+Phase 1 install + Phase 2 run path is documented in [SETUP.md](SETUP.md).
+The 7 steps below are the literal sequence (full prerequisites, hash
+verification, and per-step `Verify` blocks live in SETUP.md):
+
+```powershell
+# 1. D: drive cache redirect (Windows host, 15GB Qwen weight off C:)
+[Environment]::SetEnvironmentVariable("HF_HOME", "D:\hf_cache", "User")
+# (restart PowerShell, then continue)
+
+# 2. Download Qwen2.5-7B-Instruct-1M weight (~15GB, 30min-2h depending on bandwidth)
+pip install --upgrade huggingface_hub
+hf download Qwen/Qwen2.5-7B-Instruct-1M --cache-dir "D:\hf_cache\hub"
+
+# 3. Python deps (uv + D: venv; WSL2 path for vllm, see SETUP.md Step 3)
+$env:UV_PROJECT_ENVIRONMENT = "D:\venvs\longctx-bench-honest"
+git clone https://github.com/leagames0221-sys/longctx-bench-honest.git
+cd longctx-bench-honest
+uv sync
+
+# 4. Supply chain audit (rubric #15 gate)
+uv run pip-audit --strict
+
+# 5. GitHub Models token (free tier, no credit card; see SETUP.md Step 5)
+"GITHUB_TOKEN=ghp_..." | Out-File .env -Encoding utf8 -NoNewline
+
+# 6. Baseline run (single cell, ~5 minutes; reproduces artifacts/baseline_4000.json)
+uv run python examples/baseline_niah.py --context-tokens 4000 --depth-pct 50
+
+# 7. Cloud comparison (one model, ~10 seconds; reproduces artifacts/cloud_*.json)
+uv run python examples/cloud_niah.py --model openai/gpt-4.1-mini --context-tokens 4000
+```
+
+The full 7-cell sweep (4k/5k/6k/8k local + 2k/4k cloud × N models) is
+documented in SETUP.md Step 6a-6c with expected `status` field per cell
+(PASS / OOM / TOKEN_LIMIT). The drift-check CI verifies that every
+artifact JSON matches the cost-tier table claims on every push.
 
 ## Disk layout (consumer laptop constraint, 15GB model weight)
 

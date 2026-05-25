@@ -252,7 +252,7 @@ Phase 1 populates architecture diagram. Phase 0 scaffold structure:
 
 ## Memory Bank
 
-`memory_bank/` follows the [Cline Memory Bank pattern](https://docs.cline.bot/getting-started/memory-bank): logbook (append-only events), activeContext (current focus), decisionLog (ADRs including the 2026-05 overhaul rationale), productContext (what/why), systemPatterns (how).
+`memory_bank/` follows the [Cline Memory Bank pattern](https://docs.cline.bot/prompting/cline-memory-bank): logbook (append-only events), activeContext (current focus), decisionLog (ADRs including the 2026-05 overhaul rationale), productContext (what/why), systemPatterns (how).
 
 ## Drift prevention
 

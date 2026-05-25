@@ -12,6 +12,16 @@ updates:
     labels:
       - "dependencies"
       - "pip"
+    # 7-day cooldown — defer Dependabot PRs until the new version has been
+    # published for at least 7 days. Absorbs essentially all known
+    # supply-chain attack lifetimes. Mini Shai-Hulud May 2026 was the
+    # first known simultaneous npm + PyPI campaign. GitHub native feature
+    # GA 2025-07-01.
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 5
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -24,3 +34,8 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 5

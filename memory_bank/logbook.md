@@ -1,16 +1,16 @@
 # Logbook — longctx-needle-demo
 
 > Append-only chronological event log. Latest entry at bottom.
-> Each entry: timestamp / session / 作業 / error / 進捗 / 申し送り.
+> Each entry: timestamp / actions / status / next.
 
 ---
 
-## 2026-05-11 — Phase 0 install (session: portfolio-init)
+## 2026-05-11 — Phase 0 install
 
 **作業**:
 - `~/projects/portfolio/` parent dir 既存 (browser-agent-demo と共用)
 - GitHub repo `leagames0221-sys/longctx-needle-demo` を PUBLIC + MIT で create + clone
-- Tier 2 scaffold install: CLAUDE.md / spec.md / README.md / .gitignore / .github/workflows/drift-check.yml
+- PJ scaffold install: CLAUDE.md / spec.md / README.md / .gitignore / .github/workflows/drift-check.yml
 - Memory Bank (Cline pattern) 5 file 配置
 - .claude/{skills,agents,commands,hooks}/ dir 構造作成
 
@@ -18,7 +18,7 @@
 
 **進捗**: Phase 0 scaffold install 完了見込、 initial commit + push 待ち
 
-**申し送り (次 session への引継)**:
+**Next**:
 - Phase 0 end gate = drift-check workflow が initial push で green になるか実測
 - 次 session で Phase 1 着手:
   - `~/tmp/prior-art/` に隔離 clone (vllm + Qwen2.5 + NeedleInAHaystack の 3 件)、 audit (star / commit / Issues)
@@ -29,7 +29,7 @@
 
 ---
 
-## 2026-05-11 — Phase 0 closure verified (session: portfolio-init)
+## 2026-05-11 — Phase 0 closure verified
 
 **作業**:
 - initial commit (dc5480b → 5a85ac4) push 完了、 10 file changes
@@ -49,7 +49,7 @@
 
 ---
 
-## 2026-05-11 — Phase 0 overhaul: repo rename + scope literal 全面書き換え (session: portfolio-init)
+## 2026-05-11 — Phase 0 overhaul: repo rename + scope literal 全面書き換え
 
 **作業**:
 - WebSearch + WebFetch で 2026-05 industry state 確認 (Qwen3.6 / DeepSeek V4 / RULER / LongBench v2 / NIAH saturation evidence)
@@ -72,7 +72,7 @@
 
 ---
 
-## 2026-05-11 — Portfolio unifying thesis 確定 (session: portfolio-init)
+## 2026-05-11 — Portfolio unifying thesis 確定
 
 **作業**:
 - user 提案 「全 free 制約下で best」 を portfolio unifying thesis として literal 採用、 前 entry の 「3 differentiator (measurement honesty + cost transparency + drift discipline)」 を **1 つの thesis** に literal 統合
@@ -93,7 +93,7 @@
 
 ---
 
-## 2026-05-11 — Phase 1 prep: supply chain defense + D: disk redirect (session: portfolio-init)
+## 2026-05-11 — Phase 1 prep: supply chain defense + D: disk redirect
 
 **作業**:
 - D: drive 環境変数 set (HF_HOME=D:\hf_cache + HF_HUB_CACHE=D:\hf_cache\hub) + D:\hf_cache\hub + D:\venvs dir 作成
@@ -120,10 +120,10 @@
 
 ---
 
-## 2026-05-11 — Phase 1 extract: RULER + LongBench + NIAH 抽出 + NOTICE + SETUP + HF DL kickoff (session: portfolio-init)
+## 2026-05-11 — Phase 1 extract: RULER + LongBench + NIAH 抽出 + NOTICE + SETUP + HF DL kickoff
 
 **作業**:
-- env verified: WSL2 Ubuntu v2 already installed ★★★ (vllm WSL2 path 即実行可能、 ADR-005 起草準備)、 huggingface_hub 1.10.2 (`hf` new CLI 使用、 `huggingface-cli` deprecated)
+- env verified: WSL2 Ubuntu v2 already installed  (vllm WSL2 path 即実行可能、 ADR-005 起草準備)、 huggingface_hub 1.10.2 (`hf` new CLI 使用、 `huggingface-cli` deprecated)
 - prior art literal 抽出:
   - **RULER** (SHA `ab17b7853df4e0a30b78cd5d2b463ac7dff6ee13`、 Apache 2.0、 1,536★、 2025-11-13 push) → `eval/ruler/`、 14 files
     - `scripts/{synthetic.yaml, config_models.sh, config_tasks.sh, run.sh}`
@@ -151,14 +151,14 @@
 
 ---
 
-## 2026-05-11 — Phase 1 install layer (Windows host portion): HF DL complete + uv sync + pip-audit (session: portfolio-init)
+## 2026-05-11 — Phase 1 install layer (Windows host portion): HF DL complete + uv sync + pip-audit
 
 **作業 (literal 実測値で 全項 GREEN)**:
 - **HF DL completed**: `hf download Qwen/Qwen2.5-7B-Instruct-1M --cache-dir D:\hf_cache\hub` → 12:16 duration、 14.22 GB literal 取得、 snapshot path: `D:\hf_cache\hub\models--Qwen--Qwen2.5-7B-Instruct-1M\snapshots\e28526f7bb80e2a9c8af03b831a9af3812f18fba`
 - `uv sync --extra dev` (UV_PROJECT_ENVIRONMENT=D:\venvs\longctx-bench-honest) → exit 0、 全 deps install:
   - torch 2.11.0 + transformers 5.8.0 + safetensors 0.7.0 + tokenizers 0.22.2 + huggingface-hub + datasets + openai (GitHub Models 用) + matplotlib + seaborn + pandas + numpy + accelerate + 等
   - vllm は `platform_system != 'Windows'` marker で literal 除外 = Windows host で uv sync 通過 OK、 vllm 必要時は WSL2 path (ADR-005 起草対象)
-- `uv run pip-audit --strict` → exit 0、 **"No known vulnerabilities found"** ★★★ (supply chain defense literal verified、 torch + transformers + 全 transitive deps clean)
+- `uv run pip-audit --strict` → exit 0、 **"No known vulnerabilities found"**  (supply chain defense literal verified、 torch + transformers + 全 transitive deps clean)
 - `uv.lock` 4909 行 生成 (D-NPM-3GUARD pip equivalent literal lockfile pin)
 
 **重要 finding**:
@@ -179,7 +179,7 @@
 
 ---
 
-## 2026-05-12 — Phase 1 partial: CUDA torch install + NIAH baseline scaling + 6GB VRAM ceiling literal characterized (session: portfolio-continue)
+## 2026-05-12 — Phase 1 partial: CUDA torch install + NIAH baseline scaling + 6GB VRAM ceiling literal characterized
 
 **作業 (literal 実測値)**:
 - Hardware identified: NVIDIA RTX 3050 Laptop 6GB VRAM, CUDA driver 12.6, compute 8.6 (Ampere); host RAM (not measured this session)
@@ -193,14 +193,14 @@
 
 | Run | context_tokens | actual_tokens | status | model_load_sec | inference_sec | peak_vram_gb | output |
 |---|---|---|---|---|---|---|---|
-| A | 4000 | 3851 | **PASS** | 74.45 | 251.89 | 10.80 | "2867825" (needle correct ★★★) |
+| A | 4000 | 3851 | **PASS** | 74.45 | 251.89 | 10.80 | "2867825" (needle correct ) |
 | B | 5000 | 4850 | OOM | 66.34 | n/a | 11.18 (req 2.46 more) | n/a |
 | C | 6000 | 5851 | OOM | 74.55 | n/a | 9.35 (req 3.57 more) | n/a |
 | D | 8000 | 7851 | OOM | 66.93 | n/a | 6.15 (req 6.43 single-block) | n/a |
 
 → **Hard ceiling: ~4k tokens** on this hardware tier (RTX 3050 6GB Laptop + int4 NF4 Qwen2.5-7B-1M + Win shared-mem fallback).
 
-**Honest finding (portfolio gold ★★★)**:
+**Honest finding (measurement gold )**:
 - 4k PASS uses Windows shared-mem PCIe spillover (peak 10.8GB on a 6GB GPU = 4.8GB system RAM borrowed via DMA — ~5-10x slower than native VRAM access, evidenced by 252s wall-time for what should be a sub-30s task on a workstation GPU)
 - 5k+ OOM = shared-mem fallback exhausted; single attention forward pass requires more contiguous addressable memory than physically present
 - This is the literal `constraint-optimized AI engineering` boundary — not a failure of the model, not a config error, just the literal physics of 7B params × KV cache vs 6GB VRAM
@@ -221,14 +221,14 @@
 **申し送り (next session = cloud frontier comparison)**:
 - Phase 2 entry: GitHub Models endpoint (https://models.github.ai/inference) 経由で同 NIAH @ 4k task を GPT-5 / Claude Sonnet 4.6 / Llama 3.3 で literal 並列走行 → cost-tier table 4 model × 4k cell literal populate
 - token gh auth (`gh auth token`) → .env (gitignore済) → openai SDK base_url 経由
-- 8000 token request cap 制約は browser-agent-demo v5 で既 evidence、 4k input + ~100 output = 4100 token は free-tier cap 内 ★★★
+- 8000 token request cap 制約は browser-agent-demo v5 で既 evidence、 4k input + ~100 output = 4100 token は free-tier cap 内 
 - WSL2 + vllm PagedAttention path は Phase 2 後半 candidate (ceiling 8-16k へ literal push 可否 verify)
 - craftstack 統合 (Phase 3) は cloud cells populate 後
 
 
 ---
 
-## 2026-05-12 — Phase 2a: Cloud comparison via GitHub Models free tier (session: portfolio-continue)
+## 2026-05-12 — Phase 2a: Cloud comparison via GitHub Models free tier
 
 **作業**:
 - GitHub Models catalog API literal probe (`https://models.github.ai/catalog/models`) — enumerated full model list
@@ -244,7 +244,7 @@
 | openai/gpt-5 | **UNAVAILABLE** ("Unavailable model: gpt-5") | **TOKEN_LIMIT** ("Max size: 4000 tokens") |
 | deepseek/deepseek-v3-0324 | **PASS 1.72s** (prompt=1832 tok) | **TOKEN_LIMIT** ("Max size: 4000 tokens") |
 
-**Honest findings ★★★★**:
+**Honest findings ★**:
 1. **Anthropic Claude is NOT in GitHub Models catalog** — full enumeration shows zero Anthropic models. Plan-original "Claude Sonnet" cell literal unreachable under zero-CC.
 2. **gpt-5 returns `unavailable_model` even at 2k tokens** — catalog-listed but inference-blocked on free tier (likely needs paid Azure OpenAI / GitHub Enterprise tier)
 3. **Free-tier token cap differs per model tier**: gpt-4.1-mini ("low") + llama-3.3-70b ("high") = ≥4000 tokens passable; gpt-5 ("custom") + deepseek-v3 ("high") = literal 4000 token hard cap (error: tokens_limit_reached / Max size: 4000 tokens)
@@ -267,7 +267,7 @@
 
 **申し送り (Phase 2b = WSL2 vllm experiment)**:
 - WSL2 Ubuntu 既 install 済 (前 session evidence: huggingface_hub literal callable from WSL2 env)
-- vllm PagedAttention は Linux 専用、 WSL2 install path で 6GB VRAM ceiling を 4k → 8-16k に literal 押し上げ可能性 ★ (★★ tier confidence、 PagedAttention KV cache 効率 vs transformers bitsandbytes 差分)
+- vllm PagedAttention は Linux 専用、 WSL2 install path で 6GB VRAM ceiling を 4k → 8-16k に literal 押し上げ可能性 ★ ( tier confidence、 PagedAttention KV cache 効率 vs transformers bitsandbytes 差分)
 - 試行 → 結果 (PASS or FAIL) を ADR-009 として literal 記録、 cost-tier table の 8k+ cell 更新 候補
 
 **申し送り (Phase 3 = craftstack 統合)**:
@@ -277,7 +277,7 @@
 
 ---
 
-## 2026-05-12 — Phase 2b: WSL2 + vllm experiment, NEGATIVE RESULT (session: portfolio-continue)
+## 2026-05-12 — Phase 2b: WSL2 + vllm experiment, NEGATIVE RESULT
 
 **作業**:
 - WSL2 Ubuntu 24.04 startup + verify (CUDA driver 12.6 passthrough working, nvidia-smi inside WSL2 reports same RTX 3050 6GB)
@@ -301,7 +301,7 @@ Maximum concurrency for 4200 tokens per request: 0.00x
 
 Status: OOM at engine init (before any inference). Literal cause: int4 model weights (5.43 GiB) + activations (1.42 GiB) = 6.85 GiB > 6.00 GiB total VRAM. KV cache budget = literal **negative** 0.94 GiB. vllm allocated 0 GPU cache blocks; concurrency = 0.00x.
 
-**Honest finding (★★★★ critical portfolio insight)**:
+**Honest finding (★ critical portfolio insight)**:
 - Phase 1 Windows transformers 4k PASS used **Windows kernel-level shared-memory PCIe spillover** (WDDM driver overcommit) to absorb the 10.8GB peak on a 6GB GPU
 - Linux nvidia driver does NOT provide an equivalent fallback
 - → vllm sees only physical 6GB and refuses to allocate
@@ -331,7 +331,7 @@ Status: OOM at engine init (before any inference). Literal cause: int4 model wei
 
 ---
 
-## 2026-05-12 — Phase 3: craftstack integration PR opened (session: portfolio-continue)
+## 2026-05-12 — Phase 3: craftstack integration PR opened
 
 **作業**:
 - craftstack repo (leagames0221-sys/craftstack) literal probed via gh api (no local clone, C: disk 9.6% free 保護)
@@ -351,7 +351,7 @@ Status: OOM at engine init (before any inference). Literal cause: int4 model wei
 
 **進捗**: PR open + CI running (Vercel preview + lint/typecheck/test/build + doc drift detect + knowlex integration + a11y + CodeQL all queued/running). User self-merge after CI green.
 
-**Final Phase 1+2+3 deliverable summary (★★★ tier portfolio)**:
+**Final Phase 1+2+3 deliverable summary ( tier portfolio)**:
 - **3 ADRs**: ADR-007 (Win 6GB VRAM ceiling 4k) + ADR-008 (cloud free-tier honest map, Claude absent, gpt-5 unavailable, 4000-token cap) + ADR-009 (WSL2 vllm cannot fit weights+activations on 6GB, Windows shared-mem was the literal enabler)
 - **11 JSON evidence files**: 4 Win local (4k/5k/6k/8k) + 6 cloud (gpt-4.1-mini/gpt-5×2/llama-3.3-70b/deepseek-v3×2) + 1 WSL2 vllm
 - **3 runners**: examples/baseline_niah.py (Win transformers) + cloud_niah.py (GitHub Models) + wsl_vllm_niah.py (WSL2 vllm)
@@ -368,11 +368,11 @@ Status: OOM at engine init (before any inference). Literal cause: int4 model wei
 
 ---
 
-## 2026-05-12 — Post-audit fix + final session handoff (session: portfolio-continue, FINAL)
+## 2026-05-12 — Post-audit fix + final session handoff
 
 **作業**:
 - Self-audit conducted at user request ("おかしい箇所が無いかを指摘して") with critical lens
-- Found 3 ★★+ drifts: pyproject.toml/uv.lock reproducibility broken, ADR-009 overclaim (★★★★ where ★★ honest), cost-tier predicted vs measured visually mixed
+- Found 3 + drifts: pyproject.toml/uv.lock reproducibility broken, ADR-009 overclaim (★ where  honest), cost-tier predicted vs measured visually mixed
 - Implemented 4 fix (commit 46a5a8c): pyproject pin + cu124 source + ADR-009 honesty tier + cost-tier icon legend + memory bank drift cleanup + SETUP.md Step 6 rewrite
 - drift-CI 22+ steps GREEN post-audit
 - D drive cleanup executed earlier in session: 4.36GB (.ollama) + 14.22GB (hf_cache) + 5.28GB (D:/venvs) deleted; WSL2 11GB blocked by destructive command gate (user explicit "OK 実行して" needed)
@@ -380,7 +380,7 @@ Status: OOM at engine init (before any inference). Literal cause: int4 model wei
 - activeContext.md updated with final state + next session recommendation (Distribution before new building)
 
 **Final aggregate (session totals)**:
-- longctx-bench-honest: 8+ commits, 11 JSON evidence cells, 3 ADRs, 3 runners, 22+ drift-CI steps, ★★★ tier post-audit
+- longctx-bench-honest: 8+ commits, 11 JSON evidence cells, 3 ADRs, 3 runners, 22+ drift-CI steps,  tier post-audit
 - craftstack: 1 PR opened + merged + branch deleted, "Related portfolio work" section live
 - Disk cleanup: ~24 GB freed from C: + D: (WSL2 11 GB pending user explicit OK)
 
@@ -401,7 +401,7 @@ Status: OOM at engine init (before any inference). Literal cause: int4 model wei
 
 ---
 
-## 2026-05-12 — Distribution attempt: structural anti-new-account gate observed on both HN + Reddit (session: portfolio-continue)
+## 2026-05-12 — Distribution attempt: structural anti-new-account gate observed on both HN + Reddit
 
 **作業**:
 - r/LocalLLaMA literal submit attempted with full body, Discussion flair set → **auto-mod 削除** within 1 minute (post visible in user's submissions but with "removed by moderator" banner). Likely cause: new account `u/leagames0221` lacks karma/age threshold.
@@ -411,7 +411,7 @@ Status: OOM at engine init (before any inference). Literal cause: int4 model wei
   - longctx-bench-honest: long-context / llm / qwen / qwen2-5 / benchmark / vllm / transformers / bitsandbytes / niah / github-models / consumer-laptop / portfolio
   - browser-agent-demo: llm / ollama / qwen / browser-automation / rpa / browser-use / local-llm / ai-agents / portfolio / defense-in-depth
 
-**Honest finding (★★★ structural)**:
+**Honest finding ( structural)**:
 - Both major distribution channels (HN Show HN + r/LocalLLaMA) have explicit anti-new-account guards that cannot be bypassed by content quality
 - New accounts must build community standing first (5-10 substantive comments over 7+ days) before posting flag/Show HN
 - LinkedIn requires existing account; user has none
@@ -422,7 +422,7 @@ Status: OOM at engine init (before any inference). Literal cause: int4 model wei
 **Other navigation attempted**:
 - An accidental redirect to hiveterm.com during HN submit attempt; likely browser extension hijack. Resolved by going direct to https://news.ycombinator.com/submit URL bar entry (no autocomplete).
 
-**進捗**: Distribution attempt for portfolio shipped today is on hold. GitHub topics applied as passive discoverability boost. Portfolio remains literal ★★★ tier and ready for distribution when account gates clear.
+**進捗**: Distribution attempt for portfolio shipped today is on hold. GitHub topics applied as passive discoverability boost. Portfolio remains literal  tier and ready for distribution when account gates clear.
 
 **申し送り (next session, 1-2 weeks out)**:
 - Phase 4 distribution retry recommended cadence:
@@ -441,7 +441,7 @@ Status: OOM at engine init (before any inference). Literal cause: int4 model wei
 
 ---
 
-## 2026-05-12 — Dev.to article PUBLISHED ★★★ (session: portfolio-continue, distribution success)
+## 2026-05-12 — Dev.to article PUBLISHED 
 
 **作業**:
 - Dev.to account 作成 (GitHub OAuth、 username `leagames0221sys`、 display name `tomohiro takada`、 no face photo per user preference)
@@ -458,17 +458,17 @@ https://dev.to/leagames0221sys/counterintuitive-wsl2-vllm-cannot-fit-qwen25-7b-1
 |---|---|
 | GitHub 3 repo public + cross-link | ✅ |
 | GitHub topic tags (22 total) | ✅ |
-| Dev.to article public | ✅ ★★★ (今回 literal 新規達成) |
+| Dev.to article public | ✅  (今回 literal 新規達成) |
 | Reddit r/LocalLLaMA | ⏳ pending karma building 1-2 weeks |
 | HN Show HN | ⏳ pending karma building 1-2 weeks |
 
-**Dev.to の passive distribution mechanism (★★ tier 予測)**:
+**Dev.to の passive distribution mechanism ( tier 予測)**:
 - 4 tag (#llm #machinelearning #opensource #showdev) の follower feed に literal 即露出
 - Dev.to Daily / Weekly digest 候補 (algorithm 選定、 high-engagement post なら ~24h で picks up)
 - Google indexing (~24-72h で literal search hit 化、 SEO 効果は HN/Reddit より長期持続)
 - engagement metrics (Dev.to 内 stats page で view count / reactions / comments literal tracking 可能、 Edit/Manage/Stats button から access)
 
-**進捗**: 本 session で literal distribution 達成 ★★★、 当初 「distribution は 1-2 週間後」 予測が前倒し成功 (Dev.to 経路発見)
+**進捗**: 本 session で literal distribution 達成 、 当初 「distribution は 1-2 週間後」 予測が前倒し成功 (Dev.to 経路発見)
 
 **申し送り (next session 候補)**:
 1. **24-48h 後 reaction monitoring**: Dev.to stats page (https://dev.to/leagames0221sys/dashboard) で view / reactions / comments 確認、 comment あれば AI が reply 起草

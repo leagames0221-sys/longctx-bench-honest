@@ -6,20 +6,28 @@
 
 [![drift-check](https://github.com/leagames0221-sys/longctx-bench-honest/actions/workflows/drift-check.yml/badge.svg)](https://github.com/leagames0221-sys/longctx-bench-honest/actions/workflows/drift-check.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Constraint: zero CC](https://img.shields.io/badge/Constraint-zero%20credit%20card-blue)](#selected-under)
+[![Constraint: zero credit card](https://img.shields.io/badge/Constraint-zero%20credit%20card-blue)](#selected-under)
+[![Constraint: local LLM (default)](https://img.shields.io/badge/Constraint-local%20LLM%20%28default%29-blue)](#selected-under)
+[![Constraint: free / OSS only](https://img.shields.io/badge/Constraint-free%20%2F%20OSS%20only-blue)](#selected-under)
+[![Constraint: security defense-in-depth](https://img.shields.io/badge/Constraint-security%20defense--in--depth-blue)](#selected-under)
 [![Constraint: consumer laptop](https://img.shields.io/badge/Constraint-consumer%20laptop-blue)](#selected-under)
 [![Constraint: drift-CI enforced](https://img.shields.io/badge/Constraint-drift--CI%20enforced-blue)](#selected-under)
 
 ## Selected under
 
-> **The constraint set** (every component of this repo was selected to satisfy *all four* simultaneously):
+> **The 4-constraint set** (applied across the full portfolio — verified consistent across all 11 portfolio repos):
 >
-> 1. **Zero credit card** — no Anthropic / OpenAI paid API; GitHub Models free tier + local OSS only
-> 2. **Consumer laptop only** — single workstation, no 8-GPU tensor parallel, no datacenter
-> 3. **Public source / OSS only** — no proprietary code, no NDA-bound datasets
-> 4. **Drift-CI enforced** — every README claim verified by automation; mismatch fails the build
+> 1. **Zero credit card** — no paid API / cloud service required for the default path. A reviewer can clone, install, and run with $0 spend and no payment method on file.
+> 2. **Local LLM (default)** — when an LLM is involved, the default path is local (Ollama / similar) or deterministic mock. Paid cloud LLM is opt-in via env var, never default.
+> 3. **Free / OSS only** — every runtime dependency is permissively-licensed open source (MIT / Apache-2.0 / BSD-3); no proprietary SDK at build time.
+> 4. **Security defense-in-depth** — secrets-scan CI + `.gitignore` hardening, encrypted-at-rest where PII is involved, append-only audit logging where applicable, dep-vuln gating (`pip-audit` / `pnpm audit`), paid-API constructor gate where applicable.
 >
-> **The thesis**: under these constraints, what's the literal best 1M-token long-context measurement buildable in 2026-05? This repo is the answer — every selection (LLM, benchmarks, comparison cloud models, eval methodology) has a sourced rationale in [decisionLog](memory_bank/decisionLog.md) explaining why alternatives were rejected.
+> **Additional repo-specific constraints** (this repo applies 2 more on top of the 4 portfolio baseline):
+>
+> - **Consumer laptop only** — single workstation, no 8-GPU tensor parallel, no datacenter (local model = Qwen2.5-7B-Instruct-1M on consumer GPU; cloud comparison via GitHub Models free tier with `gh auth token`)
+> - **Drift-CI enforced** — every README claim verified by [drift-check CI](.github/workflows/drift-check.yml); mismatch fails the build (cost-tier table numerics literal-matched against `artifacts/*.json` JSON evidence)
+>
+> **The thesis**: under these 6 constraints simultaneously, what's the literal best 1M-token long-context measurement buildable in 2026-05? This repo is the answer — every selection (LLM, benchmarks, comparison cloud models, eval methodology) has a sourced rationale in [decisionLog](memory_bank/decisionLog.md) explaining why alternatives were rejected.
 >
 > Portfolio category: **constraint-optimized AI engineering**.
 
@@ -102,6 +110,20 @@ Phase 1 partial result populates the local 4k cell with literal JSON evidence. L
 
 **WSL2 + vllm test (Phase 2b, NEGATIVE RESULT)** — Tried PagedAttention via vllm 0.7.3 + bitsandbytes int4 in WSL2 Ubuntu 24.04. vllm memory profile literal evidence ([wsl_vllm_4000.json](artifacts/wsl_vllm_4000.json)): model weights 5.43GiB + activation peak 1.42GiB = 6.85GiB > 6.00GiB physical → 0 GPU cache blocks, OOM before any inference. **Linux/vllm provides no shared-memory PCIe spillover** — the Windows transformers 4k PASS was structurally dependent on Windows OS-level memory overcommit. Conventional wisdom "Linux/vllm > Windows/transformers for memory efficiency" is literal disproven at this hardware tier. See [ADR-009](memory_bank/decisionLog.md).
 
+### Visual summary
+
+![NIAH Phase 1 heatmap](docs/heatmap/niah_phase1.png)
+
+Auto-rendered from `artifacts/*.json` by [docs/heatmap/render.py](docs/heatmap/render.py)
+(matplotlib + numpy, no network egress). Cells follow the cost-tier table above:
+`PASS` = green, `OOM` = red (local hardware ceiling), `TOKEN_LIMIT` = yellow
+(cloud free-tier cap), `ERROR` = dark red (model unavailable), `N/A` = grey
+(not measured in Phase 1). Regenerate after adding artifacts:
+
+```bash
+python docs/heatmap/render.py
+```
+
 ## Phase plan
 
 | Phase | Scope | End gate |
@@ -159,7 +181,42 @@ Citation chain for the literal API responses: [decisionLog ADR-008](memory_bank/
 
 ## Quickstart
 
-Phase 1 populates install + run commands. Phase 0 state is scaffolds only.
+Phase 1 install + Phase 2 run path is documented in [SETUP.md](SETUP.md).
+The 7 steps below are the literal sequence (full prerequisites, hash
+verification, and per-step `Verify` blocks live in SETUP.md):
+
+```powershell
+# 1. D: drive cache redirect (Windows host, 15GB Qwen weight off C:)
+[Environment]::SetEnvironmentVariable("HF_HOME", "D:\hf_cache", "User")
+# (restart PowerShell, then continue)
+
+# 2. Download Qwen2.5-7B-Instruct-1M weight (~15GB, 30min-2h depending on bandwidth)
+pip install --upgrade huggingface_hub
+hf download Qwen/Qwen2.5-7B-Instruct-1M --cache-dir "D:\hf_cache\hub"
+
+# 3. Python deps (uv + D: venv; WSL2 path for vllm, see SETUP.md Step 3)
+$env:UV_PROJECT_ENVIRONMENT = "D:\venvs\longctx-bench-honest"
+git clone https://github.com/leagames0221-sys/longctx-bench-honest.git
+cd longctx-bench-honest
+uv sync
+
+# 4. Supply chain audit (rubric #15 gate)
+uv run pip-audit --strict
+
+# 5. GitHub Models token (free tier, no credit card; see SETUP.md Step 5)
+"GITHUB_TOKEN=ghp_..." | Out-File .env -Encoding utf8 -NoNewline
+
+# 6. Baseline run (single cell, ~5 minutes; reproduces artifacts/baseline_4000.json)
+uv run python examples/baseline_niah.py --context-tokens 4000 --depth-pct 50
+
+# 7. Cloud comparison (one model, ~10 seconds; reproduces artifacts/cloud_*.json)
+uv run python examples/cloud_niah.py --model openai/gpt-4.1-mini --context-tokens 4000
+```
+
+The full 7-cell sweep (4k/5k/6k/8k local + 2k/4k cloud × N models) is
+documented in SETUP.md Step 6a-6c with expected `status` field per cell
+(PASS / OOM / TOKEN_LIMIT). The drift-check CI verifies that every
+artifact JSON matches the cost-tier table claims on every push.
 
 ## Disk layout (consumer laptop constraint, 15GB model weight)
 

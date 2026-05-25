@@ -1,6 +1,6 @@
-# Social distribution drafts (Phase 3 next-step deliverable)
+# Social distribution drafts
 
-Drafts ready for user to copy-paste into r/LocalLLaMA and Hacker News when ready to submit. Both written in English (target audience). Substance over hype, negative findings surfaced first (matches portfolio honesty thesis).
+Drafts ready to copy-paste into r/LocalLLaMA and Hacker News when ready to submit. Both written in English (target audience). Substance over hype, negative findings surfaced first.
 
 ---
 

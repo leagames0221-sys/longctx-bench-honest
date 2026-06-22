@@ -16,7 +16,7 @@ dependencies = [
     # PyTorch CUDA stack — pinned to exact versions matching baseline_*.json evidence (torch_version field).
     # cu124 wheels via [tool.uv.sources] below; driver 12.6 + CUDA 12.4 torch is the verified combination.
     "torch==2.12.0",
-    "torchvision==0.27.0",
+    "torchvision==0.27.1",
     # Runtime int4 NF4 quantization (Phase 1 Windows path uses this to fit 7B on 6GB VRAM, ADR-007)
     "bitsandbytes==0.49.2",
     # HuggingFace stack (Qwen 2.5-7B-1M model load)

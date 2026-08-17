@@ -12,7 +12,7 @@ dependencies = [
     # Pinned to 0.7.3 to match ADR-009 wsl_vllm_4000.json evidence literal (newer vllm needs CUDA 12.8+ driver,
     # outside consumer-laptop constraint). vllm 0.7.3 needs transformers 4.48.x; if upgraded to vllm 0.8+
     # also bump transformers — see ADR-009 for the literal API drift incident.
-    "vllm==0.21.0; platform_system != 'Windows'",
+    "vllm==0.27.1; platform_system != 'Windows'",
     # PyTorch CUDA stack — pinned to exact versions matching baseline_*.json evidence (torch_version field).
     # cu124 wheels via [tool.uv.sources] below; driver 12.6 + CUDA 12.4 torch is the verified combination.
     "torch==2.12.0",
